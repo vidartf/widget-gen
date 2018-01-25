@@ -1,0 +1,33 @@
+{
+  "name": "widget-gen",
+  "version": "1.0.0",
+  "description": "A node package for generating jupyter widget definitions from a JSON schema",
+  "main": "src/index.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vidartf/widget-gen.git"
+  },
+  "keywords": [
+    "jupyter",
+    "widgets",
+    "generation"
+  ],
+  "author": "Vidar Tonaas Fauske",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/vidartf/widget-gen/issues"
+  },
+  "homepage": "https://github.com/vidartf/widget-gen",
+  "dependencies": {
+    "fs-extra": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.0"
+  }
+}
