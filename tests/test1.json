@@ -1,0 +1,100 @@
+{
+  "widgets": {
+
+    "VtkWidget": {
+      "inherits": ["Widget"],
+      "properties": {
+        "model_module_name": "test-widget",
+        "view_module_name": "test-widget",
+        "model_module_version": "1.0.0",
+        "model_view_version": null
+      }
+    },
+
+    "DataArray": {
+      "_model_name": "DataArray",
+      "name": {
+        "type": "string",
+        "default": null,
+        "allowNull": true
+      }
+    },
+
+    "DataContainer": {
+      "_model_name": "DataContainer",
+      "kind": { "type": "string" },
+      "attributes": { "type": "object" },
+      "data_arrays": {
+        "type": "array",
+        "items": {
+          "type": "widgetRef",
+          "widgetType": "DataArray"
+        }
+      }
+    },
+
+    "Piece": {
+      "inherits": ["VtkWidget"],
+      "help": "This text describes the Piece widget",
+      "properties": {
+        "attributes": {
+          "type": "object"
+        },
+        "data": {
+          "type": "array",
+          "help": "This text describes the data attribute",
+          "items": {
+            "type": "widgetRef",
+            "widgetType": "DataContainer"
+          }
+        }
+      }
+    },
+
+    "DataSet": {
+      "inherits": ["VtkWidget"],
+      "pieces": {
+        "type": "array",
+        "items": {
+          "type": "widgetRef",
+          "widgetType": "Piece"
+        }
+      }
+    },
+
+    "ImageData": {
+      "_model_name": "ImageData",
+      "whole_extent": {
+        "type": "array",
+        "items": [
+          { "type": "float" },
+          { "type": "float" },
+          { "type": "float" },
+          { "type": "float" },
+          { "type": "float" },
+          { "type": "float" }
+        ]
+      },
+      "origin": {
+        "type": "array",
+        "items": [
+          { "type": "float" },
+          { "type": "float" },
+          { "type": "float" }
+        ]
+      },
+      "spacing": {
+        "type": "array",
+        "items": [
+          { "type": "float" },
+          { "type": "float" },
+          { "type": "float" }
+        ]
+      }
+    },
+
+    "UnstructuredGrid": {
+      "_model_name": "UnstructuredGrid"
+    }
+  }
+}

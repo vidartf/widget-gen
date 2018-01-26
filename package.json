@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/vidartf/widget-gen",
   "dependencies": {
+    "@phosphor/signaling": "^1.2.2",
     "fs-extra": "^5.0.0"
   },
   "devDependencies": {

@@ -1,0 +1,163 @@
+
+
+import * as fs from 'fs-extra';
+
+import * as path from 'path';
+
+import {
+  Writer
+} from './base';
+
+import {
+  INamedWidget, Parser, AttributeDef
+} from '../core';
+
+
+const HEADER = `
+from trailtets import (
+    Unicode, Enum, Instance, Union, Float, Int, List, Tuple, Dict,
+    Undefined, Bool
+)
+from ipywidgets import Widget, DOMWidget
+
+
+`;
+
+const INDENT = '    ';
+
+
+export
+class PythonWriter extends Writer {
+  /**
+   *
+   */
+  constructor(directory: string) {
+    super(directory);
+  }
+
+  onWidget(sender: Parser, data: INamedWidget): void {
+    let lines: string[] = [];
+
+    lines.push(
+      ...HEADER.split('\n'),
+      `class ${data.name}(${(data.inherits || ['Widget']).join(', ')}):`,
+      '',
+    )
+    let properties = data.properties || {};
+    for (let key of Object.keys(properties)) {
+      let traitDef = properties[key];
+      let start = `${INDENT}${name} = `;
+      let trait = this.makeTrait(traitDef.value);
+      lines.push(...(start + trait).split('\n'));
+    }
+
+    let fname = path.join(this.directory, `${data.name}.py`);
+    fs.writeFile(fname, lines.join('\n'));
+  }
+
+  convertBoolean(value: any): string {
+    if (value === true) {
+      return 'True';
+    } else if (value === false) {
+      return 'False';
+    }
+    return value.toString();
+  }
+
+  makeTrait(data: AttributeDef): string {
+    let traitDef: string = 'Any()';
+    let tag = '.tag(sync=True)'
+
+    if (data === null) {
+      traitDef = 'Any(None, allow_none=True).tag(sync=True)';
+    } else if (data === undefined) {
+      traitDef = 'Any(Undefined).tag(sync=True)';
+    } else if (typeof data === 'string') {
+      traitDef = `Unicode('${data}').tag(sync=True)`;
+    } else if (typeof data === 'number') {
+      if (Number.isInteger(data)) {
+        traitDef = `Int(${data}).tag(sync=True)`;
+      } else {
+        traitDef = `Float(${data}).tag(sync=True)`;
+      }
+    } else if (typeof data === 'boolean') {
+      traitDef = `Bool(${this.convertBoolean(data)})`
+    } else {
+      // JSON object
+      if (data.help) {
+        tag = `.tag(sync=True, help='${data.help}')`
+      }
+      let defValue = data.default;
+      if (defValue === null) {
+        defValue = 'None';
+      } else if (defValue === undefined) {
+        defValue = 'Undefined';
+      }
+      let allowNoneArg = `allow_none=${this.convertBoolean(data.allowNull)}`;
+      switch (data.type) {
+
+      case 'int':
+        traitDef = `Int(${defValue}, )`;
+        break;
+
+      case 'float':
+        traitDef = `Float(${defValue}, ${allowNoneArg})`;
+        break;
+
+      case 'boolean':
+        if (defValue === true) {
+          defValue = 'True';
+        } else if (defValue === false) {
+          defValue = 'False'
+        }
+        traitDef = `Bool(${defValue}, ${allowNoneArg})`;
+        break;
+
+      case 'string':
+        traitDef = `Unicode(${defValue}, ${allowNoneArg})`;
+        break;
+
+      case 'object':
+        traitDef = `Dict(${defValue}, ${allowNoneArg})`;
+        break;
+
+      case 'array':
+        let items = data.items;
+        if (items === undefined) {
+          traitDef = `Tuple(${defValue}, ${allowNoneArg})`;
+        } else if (Array.isArray(items)) {
+          let itemDefs = [];
+          for (let item of items) {
+            itemDefs.push(this.makeTrait(item));
+          }
+          traitDef = (
+            `Tuple((\n` +
+              `${INDENT}${INDENT}${itemDefs.join(`,\n${INDENT}${INDENT}`)}\n` +
+            `${INDENT}), ${allowNoneArg})`
+          );
+        } else {
+          traitDef = `List(${this.makeTrait(items)}, ${allowNoneArg})`
+        }
+        break;
+
+      case 'widgetRef':
+        let type = data.widgetType;
+        tag = tag.slice(0, tag.length - 1) + ', **widget_serialization)';
+        if (Array.isArray(type)) {
+          const instances = type.map(function(typeName) {
+            return `${INDENT}${INDENT}Instance(${typeName})`;
+          });
+          traitDef = 'Union([\n' + instances.join(',\n') + `\n${INDENT}], ${allowNoneArg})`;
+        } else {
+          traitDef = `Instance(${type}, ${allowNoneArg})`;
+        }
+        break;
+
+      default:
+        throw new Error(`Unknown type: ${(data as any).type}`);
+      }
+    }
+
+    return traitDef + tag;
+  }
+}
