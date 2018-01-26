@@ -1,0 +1,272 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "VTK data format",
+  "description": "VTK data format JSON serialization schema",
+
+  "type": "array",
+  "items": {
+    "type": "object",
+    "oneOf": [
+      { "$ref": "#/definitions/ImageData" },
+      { "$ref": "#/definitions/PolyData" },
+      { "$ref": "#/definitions/RectilinearGrid" },
+      { "$ref": "#/definitions/StructuredGrid" },
+      { "$ref": "#/definitions/UnstructuredGrid" }
+    ]
+  },
+  "definitions": {
+    "widgetRef": {
+      "type": "string"
+    },
+    "extent": {
+      "type": "string",
+      "pattern": "\\d+ \\d+ \\d+ \\d+ \\d+ \\d+"
+    },
+    "Piece": {
+      "type": "object",
+      "properties": {
+        "PointData": {
+          "oneOf": [{ "$ref": "#/definitions/PointData"}]
+        },
+        "CellData": {
+          "oneOf": [{ "$ref": "#/definitions/CellData"}]
+        }
+      },
+      "required": ["PointData", "CellData"]
+    },
+    "PointData": {
+      "type": "object",
+      "properties": {
+        "Scalars": { "type": "string" },
+        "Vectors": { "type": "string" },
+        "Normals": { "type": "string" },
+        "Tensors": { "type": "string" },
+        "TCoords": { "type": "string" },
+        "data_arrays": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DataArray" }
+        }
+      }
+    },
+    "CellData": {
+      "type": "object",
+      "properties": {
+        "Scalars": { "type": "string" },
+        "Vectors": { "type": "string" },
+        "Normals": { "type": "string" },
+        "Tensors": { "type": "string" },
+        "TCoords": { "type": "string" },
+        "data_arrays": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DataArray" }
+        }
+      }
+    },
+    "DataArray": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type":"string",
+          "pattern": "(U?Int(8|16|32|64))|(Float(32|64))"
+        },
+        "Name": {"type": "string"},
+        "NumberOfComponents": {"type": "number"},
+        "format": {
+          "type": "string",
+          "pattern": "(binary)|(appended)|(ascii)"
+        },
+        "offset": {"type": "number"},
+        "data": {
+          "type": ["object", "null"]
+        }
+      }
+    },
+    "Points": {
+      "type": "object",
+      "properties": {
+          "array": {
+            "oneOf":[{"$ref": "#/defintions/DataArray"}]
+          }
+      }
+    },
+    "Coordinates": {
+      "type": "object",
+      "properties": {
+          "arrays": {
+            "type": "array",
+            "items": {"$ref": "#/defintions/DataArray"}
+          }
+      }
+    },
+    "Verts": {
+      "type": "object",
+      "properties": {
+          "arrays": {
+            "type": "array",
+            "items": {"$ref": "#/defintions/DataArray"}
+          }
+      }
+    },
+    "Lines": {
+      "type": "object",
+      "properties": {
+          "arrays": {
+            "type": "array",
+            "items": {"$ref": "#/defintions/DataArray"}
+          }
+      }
+    },
+    "Strips": {
+      "type": "object",
+      "properties": {
+          "arrays": {
+            "type": "array",
+            "items": {"$ref": "#/defintions/DataArray"}
+          }
+      }
+    },
+    "Polys": {
+      "type": "object",
+      "properties": {
+          "arrays": {
+            "type": "array",
+            "items": {"$ref": "#/defintions/DataArray"}
+          }
+      }
+    },
+    "ImageData": {
+      "type": "object",
+
+      "properties": {
+        "origin": { "type": "string", "pattern": "\\d+ \\d+ \\d+"},
+        "spacing": { "type": "string", "pattern": "\\d+ \\d+ \\d+"},
+        "whole_extent": { "oneOf": [ { "$ref": "#/definitions/extent" } ] },
+        "pieces": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ImageDataPiece"}
+        }
+      }
+    },
+    "ImageDataPiece": {
+      "type": "object",
+      "oneOf": [ { "$ref": "#/definitions/Piece" } ],
+      "properties": {
+        "extent": { "oneOf": [ { "$ref": "#/definitions/extent" } ] },
+      }
+    },
+
+    "RectilinearGrid": {
+      "type": "object",
+
+      "properties": {
+        "whole_extent": { "oneOf": [ { "$ref": "#/definitions/extent" } ] },
+        "pieces": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/RectilinearGridPiece"}
+        }
+      }
+    },
+    "RectilinearGridPiece": {
+      "type": "object",
+      "oneOf": [ { "$ref": "#/definitions/Piece" } ],
+      "properties": {
+        "extent": { "oneOf": [ { "$ref": "#/definitions/extent" } ] },
+        "Coordinates": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Coordinates"}]
+        }
+      }
+    },
+
+    "StructuredGrid": {
+      "type": "object",
+
+      "properties": {
+        "whole_extent": { "oneOf": [ { "$ref": "#/definitions/extent" } ] },
+        "pieces": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/StructuredGridPiece"}
+        }
+      }
+    },
+    "StructuredGridPiece": {
+      "type": "object",
+      "oneOf": [ { "$ref": "#/definitions/Piece" } ],
+      "properties": {
+        "extent": { "oneOf": [ { "$ref": "#/definitions/extent" } ] },
+        "Points": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Points"}]
+        }
+      }
+    },
+
+    "PolyData": {
+      "type": "object",
+
+      "properties": {
+        "pieces": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/PolyDataPiece"}
+        }
+      }
+    },
+    "PolyDataPiece": {
+      "type": "object",
+      "oneOf": [ { "$ref": "#/definitions/Piece" } ],
+      "properties": {
+        "NumberOfPoints": {"type": "number"},
+        "NumberOfVerts": {"type": "number"},
+        "NumberOfLines": {"type": "number"},
+        "NumberOfStrips": {"type": "number"},
+        "NumberOfPolys": {"type": "number"},
+        "Points": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Points"}]
+        },
+        "Verts": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Verts"}]
+        },
+        "Lines": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Lines"}]
+        },
+        "Strips": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Strips"}]
+        },
+        "Polys": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Polys"}]
+        }
+      }
+    },
+
+    "UnstructuredGrid": {
+      "type": "object",
+
+      "properties": {
+        "pieces": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/UnstructuredGridPiece"}
+        }
+      }
+    },
+    "UnstructuredGridPiece": {
+      "type": "object",
+      "oneOf": [ { "$ref": "#/definitions/Piece" } ],
+      "properties": {
+        "NumberOfPoints": {"type": "number"},
+        "NumberOfCells": {"type": "number"},
+        "Points": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Points"}]
+        },
+        "Cells": {
+          "type": "object",
+          "oneOf": [{ "$ref": "#/definitions/Cells"}]
+        }
+      }
+    }
+  }

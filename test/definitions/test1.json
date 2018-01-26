@@ -13,22 +13,28 @@
 
     "DataArray": {
       "_model_name": "DataArray",
-      "name": {
-        "type": "string",
-        "default": null,
-        "allowNull": true
+      "properties": {
+        "name": {
+          "type": "string",
+          "default": null,
+          "allowNull": true
+        }
       }
     },
 
     "DataContainer": {
-      "_model_name": "DataContainer",
-      "kind": { "type": "string" },
-      "attributes": { "type": "object" },
-      "data_arrays": {
-        "type": "array",
-        "items": {
-          "type": "widgetRef",
-          "widgetType": "DataArray"
+
+      "inherits": ["Widget"],
+      "properties": {
+        "_model_name": "DataContainer",
+        "kind": { "type": "string" },
+        "attributes": { "type": "object" },
+        "data_arrays": {
+          "type": "array",
+          "items": {
+            "type": "widgetRef",
+            "widgetType": "DataArray"
+          }
         }
       }
     },
