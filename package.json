@@ -8,6 +8,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node main.js",
+    "go": "npm run build && npm start"
   },
   "repository": {
     "type": "git",
@@ -26,9 +29,12 @@
   "homepage": "https://github.com/vidartf/widget-gen",
   "dependencies": {
     "@phosphor/signaling": "^1.2.2",
-    "fs-extra": "^5.0.0"
+    "commander": "^2.13.0",
+    "fs-extra": "^5.0.0",
+    "source-map-support": "^0.5.3"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.0"
+    "@types/fs-extra": "^5.0.0",
+    "typescript": "~2.6.2"
   }
 }

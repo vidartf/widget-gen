@@ -9,7 +9,7 @@ import {
 } from './writers';
 
 
-
+export
 function run(filename: string, languages: string[], outputDirectory?: string) {
   outputDirectory = outputDirectory || '.';
   let parser = new Parser(filename);
@@ -21,11 +21,13 @@ function run(filename: string, languages: string[], outputDirectory?: string) {
     }
     let writer = new writerCtor(outputDirectory);
     instances.push(writer);
-    parser.newWidget.connect(writer.onWidget);
+    parser.newWidget.connect(writer.onWidget, writer);
   }
   return parser.start().then(() => {
     for (let writer of instances) {
       writer.finalize();
     }
+  }).catch((error) => {
+    console.log(error);
   });
 }

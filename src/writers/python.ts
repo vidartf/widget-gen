@@ -37,22 +37,26 @@ class PythonWriter extends Writer {
 
   onWidget(sender: Parser, data: INamedWidget): void {
     let lines: string[] = [];
+    let {name, inherits, properties} = data;
 
     lines.push(
       ...HEADER.split('\n'),
-      `class ${data.name}(${(data.inherits || ['Widget']).join(', ')}):`,
+      `class ${name}(${(inherits || ['Widget']).join(', ')}):`,
       '',
     )
-    let properties = data.properties || {};
-    for (let key of Object.keys(properties)) {
-      let traitDef = properties[key];
-      let start = `${INDENT}${name} = `;
-      let trait = this.makeTrait(traitDef.value);
-      lines.push(...(start + trait).split('\n'));
+    if (properties) {
+      for (let key of Object.keys(properties)) {
+        let traitDef = properties[key];
+        let start = `${INDENT}${name} = `;
+        let trait = this.makeTrait(traitDef);
+        lines.push(...(start + trait).split('\n'));
+      }
+    } else {
+      lines.push(`${INDENT}pass`);
     }
 
-    let fname = path.join(this.directory, `${data.name}.py`);
-    fs.writeFile(fname, lines.join('\n'));
+    let fname = path.join(this.directory, `${name}.py`);
+    fs.writeFileSync(fname, lines.join('\n'));
   }
 
   convertBoolean(value: any): string {
@@ -60,6 +64,10 @@ class PythonWriter extends Writer {
       return 'True';
     } else if (value === false) {
       return 'False';
+    } else if (value === null) {
+      return 'None';
+    } else if (value === undefined) {
+      return 'Undefined';
     }
     return value.toString();
   }

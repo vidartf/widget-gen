@@ -1,7 +1,7 @@
 
 
 import {
-  Writer, IWriterConstructor
+  IWriterConstructor
 } from './base';
 
 import {

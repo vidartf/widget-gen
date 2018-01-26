@@ -18,7 +18,7 @@ export
 interface IWidgetJSON {
   inherits?: string[];
   properties?: {
-    [key: string]: WidgetAttribute;
+    [key: string]: AttributeDef;
   },
   help?: string;
 }
@@ -89,12 +89,6 @@ type IAttributeJSON = (
 export
 type AttributeDef = string | number | boolean | null | IAttributeJSON | undefined;
 
-export
-type WidgetAttribute = {
-  name: string;
-  value: AttributeDef;
-}
-
 
 export
 class Parser {
@@ -109,8 +103,8 @@ class Parser {
       }
       for (let widgetName of Object.keys(data.widgets)) {
         let namedDef: INamedWidget = {
-          name: widgetName,
           ...data.widgets[widgetName],
+          name: widgetName,
         };
         this._newWidget.emit(namedDef);
       }
