@@ -38,7 +38,7 @@ class PythonWriter extends Writer {
     let {name, inherits, properties} = data;
 
     if (this.firstOutput) {
-      this.firstOutput = true;
+      this.firstOutput = false;
       lines.push(...HEADER.split('\n'));
     }
 

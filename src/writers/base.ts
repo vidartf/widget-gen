@@ -14,7 +14,7 @@ export
 abstract class Writer {
   constructor(output: string) {
     this.output = output;
-    this.outputMultiple = fs.statSync(output).isDirectory();
+    this.outputMultiple = fs.existsSync(output) && fs.statSync(output).isDirectory();
     this.firstOutput = true;
   }
 

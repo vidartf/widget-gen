@@ -19,9 +19,7 @@ var widgets = require('@jupyter-widgets/base');
 var WidgetModel = widgets.WidgetModel;
 var DOMWidgetModel = widgets.DOMWidgetModel;
 var WidgetView = widgets.WidgetView;
-var DOMWidgetView = widgets.DOMWidgetView;
-
-`;
+var DOMWidgetView = widgets.DOMWidgetView;`;
 
 const INDENT = '  ';
 
@@ -54,7 +52,7 @@ class JSWriter extends Writer {
     let {name, inherits, properties} = data;
 
     if (this.firstOutput) {
-      this.firstOutput = true;
+      this.firstOutput = false;
       lines.push(...HEADER.split('\n'));
     }
 
@@ -64,8 +62,8 @@ class JSWriter extends Writer {
         `Dropping ancestors: ${inherits.slice(1)}`);
     }
     lines.push(
-      '', '',
-      `var ${name} = ${inherits[0]}Model.extend({`,
+      '', '', '',  // add some empty lines
+      `var ${name}Model = ${inherits[0]}Model.extend({`,
       '',
     )
     let serializers: {[key: string]: string} = {};
