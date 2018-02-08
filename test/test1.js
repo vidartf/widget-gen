@@ -57,4 +57,43 @@ describe('test1', () => {
 
   });
 
+
+  describe('javascript', () => {
+
+    it('should generate all the files', () => {
+      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let outdir = null;
+      return mkdtemp('widget-gen').then((d) => {
+        outdir = d;
+        return run(fname, ['javascript'], outdir);
+      }).then(() => {
+        return fs.readdir(outdir);
+      }).then((dirFiles) => {
+        return new Promise((resolve, reject) => {
+          try {
+            expect(dirFiles).to.eql([
+              "DataArray.js",
+              "DataContainer.js",
+              "DataSet.js",
+              "ImageData.js",
+              "Piece.js",
+              "UnstructuredGrid.js",
+              "VtkWidget.js"
+            ]);
+          } finally {
+            rimraf(outdir, (error) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve();
+              }
+            });
+          }
+        });
+      });
+    });
+
+  });
+
+
 });
