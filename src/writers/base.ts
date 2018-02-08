@@ -3,16 +3,19 @@ import {
   INamedWidget, Parser
 } from '../core';
 
+import * as fs from 'fs-extra';
 
 export
 interface IWriterConstructor {
-  new (directory: string): Writer;
+  new (output: string): Writer;
 }
 
 export
 abstract class Writer {
-  constructor(directory: string) {
-    this.directory = directory;
+  constructor(output: string) {
+    this.output = output;
+    this.outputMultiple = fs.statSync(output).isDirectory();
+    this.firstOutput = true;
   }
 
   abstract onWidget(sender: Parser, args: INamedWidget): void;
@@ -20,6 +23,8 @@ abstract class Writer {
   finalize(): void {
   };
 
-  protected directory: string;
+  protected output: string;
+  protected outputMultiple: boolean;
+  protected firstOutput: boolean;
 }
 

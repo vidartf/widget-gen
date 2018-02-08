@@ -19,8 +19,6 @@ from trailtets import (
     Undefined, Bool
 )
 from ipywidgets import Widget, DOMWidget
-
-
 `;
 
 const INDENT = '    ';
@@ -31,16 +29,21 @@ class PythonWriter extends Writer {
   /**
    *
    */
-  constructor(directory: string) {
-    super(directory);
+  constructor(output: string) {
+    super(output);
   }
 
   onWidget(sender: Parser, data: INamedWidget): void {
     let lines: string[] = [];
     let {name, inherits, properties} = data;
 
+    if (this.firstOutput) {
+      this.firstOutput = true;
+      lines.push(...HEADER.split('\n'));
+    }
+
     lines.push(
-      ...HEADER.split('\n'),
+      '', '',  // add some empty lines
       `class ${name}(${(inherits || ['Widget']).join(', ')}):`,
       '',
     )
@@ -55,8 +58,12 @@ class PythonWriter extends Writer {
       lines.push(`${INDENT}pass`);
     }
 
-    let fname = path.join(this.directory, `${name}.py`);
-    fs.writeFileSync(fname, lines.join('\n'));
+    if (this.outputMultiple) {
+      let fname = path.join(this.output, `${name}.py`);
+      fs.writeFileSync(fname, lines.join('\n'));
+    } else {
+      fs.appendFileSync(this.output, lines.join('\n'));
+    }
   }
 
   convertBoolean(value: any): string {
