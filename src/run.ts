@@ -17,7 +17,8 @@ function run(filename: string, languages: string[], outputDirectory?: string) {
   for (let language of languages) {
     let writerCtor = writers[language];
     if (writerCtor === undefined) {
-      throw new Error(`Unknown language: ${language}`);
+      throw new Error(`Unknown language: ${language}. ` +
+        `Valid languages: ${Object.keys(writers)}.`);
     }
     let writer = new writerCtor(outputDirectory);
     instances.push(writer);
