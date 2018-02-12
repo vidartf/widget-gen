@@ -8,7 +8,7 @@ const expect = require('chai').expect;
 const JSONValidation = require('json-validation').JSONValidation;
 
 const definitionSchema = fs.readFileSync(
-  path.resolve(__dirname, 'definition.schema.json'),
+  path.resolve(__dirname, '..', 'src', 'definition.schema.json'),
   'utf-8'
 );
 
