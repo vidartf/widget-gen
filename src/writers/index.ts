@@ -16,6 +16,10 @@ import {
   JSES6Writer
 } from './js-es6';
 
+import {
+  TSWriter
+} from './ts';
+
 
 export {
   Writer, IWriterConstructor
@@ -30,4 +34,5 @@ let writers: {[key: string]: IWriterConstructor| undefined} = {
   es5: JSES5Writer,
   'js-es6': JSES6Writer,
   es6: JSES6Writer,
+  ts: TSWriter,
 }

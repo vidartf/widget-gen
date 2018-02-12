@@ -10,7 +10,7 @@
     "test": "mocha",
     "build": "tsc",
     "start": "node main.js",
-    "manual": "npm run build && node main.js -o manual ./test/definitions/test1.json python js es6"
+    "manual": "npm run build && node main.js -o manual ./test/definitions/test1.json python js ts"
   },
   "repository": {
     "type": "git",

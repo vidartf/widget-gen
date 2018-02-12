@@ -48,8 +48,21 @@ class JSES6Writer extends Writer {
     super(output);
   }
 
+
   onWidget(sender: Parser, data: INamedWidget): void {
-    let lines: string[] = [];
+    const lines = this.genLines(sender, data);
+
+    if (this.outputMultiple) {
+        let fname = path.join(this.output, `${name}.js`);
+        this.modules.push(name);
+        fs.writeFileSync(fname, lines.join('\n'));
+      } else {
+        fs.appendFileSync(this.output, lines.join('\n'));
+      }
+  }
+
+  genLines(sender: Parser, data: INamedWidget): string[] {
+    const lines: string[] = [];
     let {name, inherits, properties} = data;
 
     if (this.outputMultiple || this.firstOutput) {
@@ -66,11 +79,12 @@ class JSES6Writer extends Writer {
       let refs = sender.widgetNames.intersection(inherits);
       console.debug(`${name} depends on: ${refs}`);
       refs.forEach((ref) => {
-        lines.push(`import { ${ref} } from './${ref}';`);
+        lines.push(`import { ${ref}Model } from './${ref}';`);
       });
     }
     lines.push(
       '', '', // add some empty lines
+      'export',
       `class ${name}Model extends ${inherits[0]}Model {`,
       '',
     )
@@ -84,7 +98,7 @@ class JSES6Writer extends Writer {
         lines.push(
           `${INDENT}${INDENT}${INDENT}${key}: ${getDefaultValue(properties[key])},`);
         if (hasWidgetRef(properties[key])) {
-          serializers[key] = '{ deserialize: widgets.unpack_models }';
+          serializers[key] = '{ deserialize: unpack_models }';
         }
       }
     }
@@ -97,7 +111,7 @@ class JSES6Writer extends Writer {
     if (Object.keys(serializers).length) {
       lines.push(
         `${INDENT}serializers = {`,
-        `${INDENT}${INDENT}...${inherits[0]}.serializers,`,
+        `${INDENT}${INDENT}...${inherits[0]}Model.serializers,`,
         ...Object.keys(serializers).map((key) => {
           return `${INDENT}${INDENT}${key}: ${serializers[key]},`;
         }),
@@ -106,14 +120,7 @@ class JSES6Writer extends Writer {
     }
     lines.push('}');
     lines.push('')  // add an empty line at end
-
-    if (this.outputMultiple) {
-        let fname = path.join(this.output, `${name}.js`);
-        this.modules.push(name);
-        fs.writeFileSync(fname, lines.join('\n'));
-      } else {
-        fs.appendFileSync(this.output, lines.join('\n'));
-      }
+    return lines;
   }
 
   finalize(): Promise<void> {
