@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "Widget definition schema",
+  "description": "",
+
+  "type": "object",
+  "properties": {
+    "widgets" : {
+      "additionalProperties": {
+        "$ref": "#/definitions/Widget"
+      }
+    }
+  },
+
+  "definitions": {
+    "Widget": {
+      "type": "object",
+      "properties": {
+
+        "inherits": {
+          "$ref": "http://json-schema.org/schema#/definitions/stringArray"
+        },
+
+        "help": {
+          "type": "string"
+        },
+
+        "properties": {
+          "additionalProperties": {
+            "$ref": "#/definitions/Attribute"
+          }
+        }
+      }
+    },
+
+    "Attribute": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "http://json-schema.org/schema#"
+        }
+      ]
+    }
+  }
+}

@@ -12,8 +12,9 @@
     },
 
     "DataArray": {
-      "_model_name": "DataArray",
+      "inherits": ["VtkWidget"],
       "properties": {
+        "_model_name": "DataArray",
         "name": {
           "type": "string",
           "default": null,
@@ -23,8 +24,7 @@
     },
 
     "DataContainer": {
-
-      "inherits": ["Widget"],
+      "inherits": ["VtkWidget"],
       "properties": {
         "_model_name": "DataContainer",
         "kind": { "type": "string" },
@@ -43,6 +43,7 @@
       "inherits": ["VtkWidget"],
       "help": "This text describes the Piece widget",
       "properties": {
+        "_model_name": "Piece",
         "attributes": {
           "type": "object"
         },
@@ -59,48 +60,56 @@
 
     "DataSet": {
       "inherits": ["VtkWidget"],
-      "pieces": {
-        "type": "array",
-        "items": {
-          "type": "widgetRef",
-          "widgetType": "Piece"
+      "properties": {
+        "pieces": {
+          "type": "array",
+          "items": {
+            "type": "widgetRef",
+            "widgetType": "Piece"
+          }
         }
       }
     },
 
     "ImageData": {
-      "_model_name": "ImageData",
-      "whole_extent": {
-        "type": "array",
-        "items": [
-          { "type": "float" },
-          { "type": "float" },
-          { "type": "float" },
-          { "type": "float" },
-          { "type": "float" },
-          { "type": "float" }
-        ]
-      },
-      "origin": {
-        "type": "array",
-        "items": [
-          { "type": "float" },
-          { "type": "float" },
-          { "type": "float" }
-        ]
-      },
-      "spacing": {
-        "type": "array",
-        "items": [
-          { "type": "float" },
-          { "type": "float" },
-          { "type": "float" }
-        ]
+      "inherits": ["DataSet"],
+      "properties": {
+        "_model_name": "ImageData",
+        "whole_extent": {
+          "type": "array",
+          "items": [
+            { "type": "float" },
+            { "type": "float" },
+            { "type": "float" },
+            { "type": "float" },
+            { "type": "float" },
+            { "type": "float" }
+          ]
+        },
+        "origin": {
+          "type": "array",
+          "items": [
+            { "type": "float" },
+            { "type": "float" },
+            { "type": "float" }
+          ]
+        },
+        "spacing": {
+          "type": "array",
+          "items": [
+            { "type": "float" },
+            { "type": "float" },
+            { "type": "float" }
+          ]
+        }
       }
     },
 
     "UnstructuredGrid": {
-      "_model_name": "UnstructuredGrid"
+      "inherits": ["DataSet"],
+      "properties": {
+        "_model_name": "UnstructuredGrid"
+      }
     }
   }
 }
