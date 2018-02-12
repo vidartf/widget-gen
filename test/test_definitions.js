@@ -1,4 +1,6 @@
 
+require('source-map-support').install();
+
 const path = require('path');
 
 const fs = require('fs-extra');

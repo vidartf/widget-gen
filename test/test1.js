@@ -1,4 +1,6 @@
 
+require('source-map-support').install();
+
 const run = require('../lib/run').run;
 
 const rimraf = require('rimraf');
