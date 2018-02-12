@@ -9,7 +9,7 @@ import {
 } from './base';
 
 import {
-  INamedWidget, Parser, AttributeDef, IWidgetRefAttributeJSON
+  INamedWidget, Parser, AttributeDef, IWidgetRefAttributeJSON, isUnionAttribute
 } from '../core';
 
 
@@ -24,17 +24,20 @@ var DOMWidgetView = widgets.DOMWidgetView;`;
 const INDENT = '  ';
 
 
-function getDefaultValue(data: AttributeDef) {
+function getDefaultValue(data: AttributeDef): any {
   if (data === null || data === undefined || typeof data === 'string' ||
       typeof data === 'number' || typeof data === 'boolean') {
     return data;
+  } else if (isUnionAttribute(data)) {
+    return getDefaultValue(data.oneOf[0]);
   }
   // JSON object
   return data.default;
 }
 
 function isWidgetRef(data: AttributeDef): data is IWidgetRefAttributeJSON {
-  return !!data && typeof data === 'object' && data.type === 'widgetRef';
+  return !!data && typeof data === 'object' &&
+    !isUnionAttribute(data) && data.type === 'widgetRef';
 }
 
 

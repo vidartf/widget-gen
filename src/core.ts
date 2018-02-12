@@ -32,7 +32,7 @@ export
 interface IBaseAttributeJSON {
   type: string;
   help?: string;
-  allowNull: boolean,
+  allowNull: boolean;
 }
 
 export
@@ -80,15 +80,27 @@ interface IBooleanAttributeJSON extends IBaseAttributeJSON {
 }
 
 export
+interface IUnionAttributeJSON {
+  help?: string;
+  allowNull: boolean;
+  oneOf: IAttributeJSON[];
+}
+
+export
 type IAttributeJSON = (
   IArrayAttributeJSON | IObjectAttributeJSON | IWidgetRefAttributeJSON |
   IStringAttributeJSON | IFloatAttributeJSON | IIntegerAttributeJSON |
-  IBooleanAttributeJSON
+  IBooleanAttributeJSON | IUnionAttributeJSON
 );
 
 export
 type AttributeDef = string | number | boolean | null | IAttributeJSON | undefined;
 
+
+export
+function isUnionAttribute(attribute: IAttributeJSON): attribute is IUnionAttributeJSON {
+  return 'oneOf' in attribute && attribute.oneOf !== undefined;
+}
 
 export
 class Parser {
