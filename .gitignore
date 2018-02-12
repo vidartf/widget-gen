@@ -24,9 +24,12 @@ ENV/
 # Node
 
 **/node_modules
-lib
 
 .vscode
+
+# Output
+lib
+manual
 
 # =========================
 # Operating System Files
