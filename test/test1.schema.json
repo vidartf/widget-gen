@@ -151,7 +151,7 @@
       "type": "object",
       "oneOf": [ { "$ref": "#/definitions/Piece" } ],
       "properties": {
-        "extent": { "oneOf": [ { "$ref": "#/definitions/extent" } ] },
+        "extent": { "oneOf": [ { "$ref": "#/definitions/extent" } ] }
       }
     },
 
@@ -270,3 +270,4 @@
       }
     }
   }
+}
