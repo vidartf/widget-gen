@@ -9,8 +9,12 @@ import {
 } from './python';
 
 import {
-  JSWriter
-} from './js';
+  JSES5Writer
+} from './js-es5';
+
+import {
+  JSES6Writer
+} from './js-es6';
 
 
 export {
@@ -20,6 +24,10 @@ export {
 export
 let writers: {[key: string]: IWriterConstructor| undefined} = {
   python: PythonWriter,
-  js: JSWriter,
-  javascript: JSWriter,
+  js: JSES5Writer,
+  javascript: JSES5Writer,
+  'js-es5': JSES5Writer,
+  es5: JSES5Writer,
+  'js-es6': JSES6Writer,
+  es6: JSES6Writer,
 }

@@ -25,9 +25,9 @@ function run(filename: string, languages: string[], outputDirectory?: string) {
     parser.newWidget.connect(writer.onWidget, writer);
   }
   return parser.start().then(() => {
-    for (let writer of instances) {
-      writer.finalize();
-    }
+    return Promise.all(instances.map((writer) => {
+      return writer.finalize();
+    }));
   }).catch((error) => {
     console.log(error);
   });

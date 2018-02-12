@@ -9,16 +9,20 @@ import {
 } from './base';
 
 import {
-  INamedWidget, Parser, AttributeDef, isUnionAttribute
+  INamedWidget, Parser, AttributeDef, isUnionAttribute, hasWidgetRef,
 } from '../core';
 
 
 const HEADER = `
-from trailtets import (
+from traitlets import (
     Unicode, Enum, Instance, Union, Float, Int, List, Tuple, Dict,
-    Undefined, Bool
+    Undefined, Bool, Any
 )
 from ipywidgets import Widget, DOMWidget
+from ipydatawidgets import (
+    NDArray, DataUnion, shape_constraints, array_serialization,
+    data_union_serialization
+)
 `;
 
 const INDENT = '    ';
@@ -37,9 +41,20 @@ class PythonWriter extends Writer {
     let lines: string[] = [];
     let {name, inherits, properties} = data;
 
-    if (this.firstOutput) {
+    if (this.outputMultiple || this.firstOutput) {
       this.firstOutput = false;
       lines.push(...HEADER.split('\n'));
+    }
+    if (this.outputMultiple) {
+      let refs = sender.resolveInternalRefs(data);
+      if (data.inherits) {
+        let localSuper = sender.widgetNames.intersection(data.inherits);
+        refs = refs.union(localSuper);
+      }
+      console.debug(`${name} depends on: ${[...refs].join(', ')}`);
+      refs.forEach((ref) => {
+        lines.push(`from .${ref} import ${ref}`)
+      });
     }
 
     lines.push(
@@ -50,148 +65,207 @@ class PythonWriter extends Writer {
     if (properties) {
       for (let key of Object.keys(properties)) {
         let traitDef = properties[key];
-        let start = `${INDENT}${name} = `;
-        let trait = this.makeTrait(traitDef);
+        let start = `${INDENT}${key} = `;
+        let trait = makeTrait(traitDef);
         lines.push(...(start + trait).split('\n'));
+        lines.push('')  // add empty lines between traits
       }
     } else {
       lines.push(`${INDENT}pass`);
     }
+    lines.push('');  // add an empty line at end
 
     if (this.outputMultiple) {
       let fname = path.join(this.output, `${name}.py`);
+      this.modules.push(name);
       fs.writeFileSync(fname, lines.join('\n'));
     } else {
       fs.appendFileSync(this.output, lines.join('\n'));
     }
   }
 
-  convertBoolean(value: any): string {
-    if (value === true) {
-      return 'True';
-    } else if (value === false) {
-      return 'False';
-    } else if (value === null) {
-      return 'None';
-    } else if (value === undefined) {
-      return 'Undefined';
+  finalize(): Promise<void> {
+    if (this.outputMultiple) {
+      // Write init file for directory output
+      let fname = path.join(this.output, `__init__.py`);
+      let lines = this.modules.map((name) => {
+        return `from .${name} import ${name}`;
+      });
+      lines.push('');  // add an empty line at end
+      return fs.writeFile(fname, lines.join('\n'));
     }
-    return value.toString();
+    return Promise.resolve();
   }
 
-  makeTrait(data: AttributeDef): string {
-    let traitDef: string = 'Any()';
-    let tag = '.tag(sync=True)'
+  modules: string[] = [];
+}
 
-    if (data === null) {
 
-      traitDef = 'Any(None, allow_none=True).tag(sync=True)';
+function convertBoolean(value: any): string {
+  if (value === true) {
+    return 'True';
+  } else if (value === false) {
+    return 'False';
+  } else if (value === null) {
+    return 'None';
+  } else if (value === undefined) {
+    return 'Undefined';
+  }
+  return value.toString();
+}
 
-    } else if (data === undefined) {
 
-      traitDef = 'Any(Undefined).tag(sync=True)';
+function makeTrait(data: AttributeDef, innerTrait=false): string {
+  let traitDef: string = 'Any()';
+  let tag = '.tag(sync=True)'
 
-    } else if (typeof data === 'string') {
+  if (data === null) {
 
-      traitDef = `Unicode('${data}').tag(sync=True)`;
+    traitDef = 'Any(None, allow_none=True)';
 
-    } else if (typeof data === 'number') {
+  } else if (data === undefined) {
 
-      if (Number.isInteger(data)) {
-        traitDef = `Int(${data}).tag(sync=True)`;
-      } else {
-        traitDef = `Float(${data}).tag(sync=True)`;
-      }
+    traitDef = 'Any(Undefined)';
 
-    } else if (typeof data === 'boolean') {
+  } else if (typeof data === 'string') {
 
-      traitDef = `Bool(${this.convertBoolean(data)})`
+    traitDef = `Unicode('${data}')`;
+
+  } else if (typeof data === 'number') {
+
+    if (Number.isInteger(data)) {
+      traitDef = `Int(${data})`;
+    } else {
+      traitDef = `Float(${data})`;
+    }
+
+  } else if (typeof data === 'boolean') {
+
+    traitDef = `Bool(${convertBoolean(data)})`
+
+  } else {
+
+    // JSON object
+    if (data.help) {
+      tag = `.tag(sync=True, help='${data.help}')`
+    }
+    let allowNoneArg = '';
+    if (data.allowNull !== undefined) {
+      allowNoneArg = `, allow_none=${convertBoolean(data.allowNull)}`;
+    }
+    if (isUnionAttribute(data)) {
+
+      const defs = data.oneOf.map((subdata) => makeTrait(subdata, true));
+      traitDef = `Union([\n${INDENT}${INDENT}${defs.join(`,\n${INDENT}${INDENT}`)}\n${INDENT}]${allowNoneArg})`;
 
     } else {
 
-      // JSON object
-      if (data.help) {
-        tag = `.tag(sync=True, help='${data.help}')`
+      let defValue = data.default;
+      if (defValue === null) {
+        defValue = 'None';
+      } else if (defValue === undefined) {
+        defValue = '';
+      } else if (defValue === true) {
+        defValue = 'True';
+      } else if (defValue === false) {
+        defValue = 'False'
       }
-      let allowNoneArg = `allow_none=${this.convertBoolean(data.allowNull)}`;
-      if (isUnionAttribute(data)) {
+      switch (data.type) {
 
-        const defs = data.oneOf.map(this.makeTrait, this);
-        traitDef = `Union(${defs}, ${allowNoneArg})`;
+      case 'int':
+        traitDef = `Int(${defValue}${allowNoneArg})`;
+        break;
 
-      } else {
+      case 'float':
+        traitDef = `Float(${defValue}${allowNoneArg})`;
+        break;
 
-        let defValue = data.default;
-        if (defValue === null) {
-          defValue = 'None';
-        } else if (defValue === undefined) {
-          defValue = 'Undefined';
+      case 'boolean':
+        traitDef = `Bool(${defValue}${allowNoneArg})`;
+        break;
+
+      case 'string':
+        traitDef = `Unicode(${defValue}${allowNoneArg})`;
+        break;
+
+      case 'object':
+        traitDef = `Dict(${defValue}${allowNoneArg})`;
+        break;
+
+      case 'array':
+        let items = data.items;
+        if (items === undefined) {
+          traitDef = `Tuple(${defValue}${allowNoneArg})`;
+        } else if (Array.isArray(items)) {
+          let itemDefs = [];
+          for (let item of items) {
+            itemDefs.push(makeTrait(item, true));
+          }
+          traitDef = (
+            `Tuple((\n` +
+              `${INDENT}${INDENT}${itemDefs.join(`,\n${INDENT}${INDENT}`)}\n` +
+            `${INDENT})${allowNoneArg})`
+          );
+        } else {
+          traitDef = `List(${makeTrait(items, true)}${allowNoneArg})`
         }
-        switch (data.type) {
+        break;
 
-        case 'int':
-          traitDef = `Int(${defValue}, ${allowNoneArg})`;
-          break;
-
-        case 'float':
-          traitDef = `Float(${defValue}, ${allowNoneArg})`;
-          break;
-
-        case 'boolean':
-          if (defValue === true) {
-            defValue = 'True';
-          } else if (defValue === false) {
-            defValue = 'False'
-          }
-          traitDef = `Bool(${defValue}, ${allowNoneArg})`;
-          break;
-
-        case 'string':
-          traitDef = `Unicode(${defValue}, ${allowNoneArg})`;
-          break;
-
-        case 'object':
-          traitDef = `Dict(${defValue}, ${allowNoneArg})`;
-          break;
-
-        case 'array':
-          let items = data.items;
-          if (items === undefined) {
-            traitDef = `Tuple(${defValue}, ${allowNoneArg})`;
-          } else if (Array.isArray(items)) {
-            let itemDefs = [];
-            for (let item of items) {
-              itemDefs.push(this.makeTrait(item));
-            }
-            traitDef = (
-              `Tuple((\n` +
-                `${INDENT}${INDENT}${itemDefs.join(`,\n${INDENT}${INDENT}`)}\n` +
-              `${INDENT}), ${allowNoneArg})`
-            );
-          } else {
-            traitDef = `List(${this.makeTrait(items)}, ${allowNoneArg})`
-          }
-          break;
-
-        case 'widgetRef':
-          let type = data.widgetType;
-          tag = tag.slice(0, tag.length - 1) + ', **widget_serialization)';
-          if (Array.isArray(type)) {
-            const instances = type.map(function(typeName) {
-              return `${INDENT}${INDENT}Instance(${typeName})`;
-            });
-            traitDef = 'Union([\n' + instances.join(',\n') + `\n${INDENT}], ${allowNoneArg})`;
-          } else {
-            traitDef = `Instance(${type}, ${allowNoneArg})`;
-          }
-          break;
-
-        default:
-          throw new Error(`Unknown type: ${(data as any).type}`);
+      case 'widgetRef':
+        let type = data.widgetType;
+        if (Array.isArray(type)) {
+          const instances = type.map(function(typeName) {
+            return `${INDENT}${INDENT}Instance(${typeName})`;
+          });
+          traitDef = 'Union([\n' + instances.join(',\n') + `\n${INDENT}]${allowNoneArg})`;
+        } else {
+          traitDef = `Instance(${type}${allowNoneArg})`;
         }
+        break;
+
+      case 'ndarray':
+        var {shape, dtype} = data;
+        let dtypeStr = '', shapeStr = '';
+        if (dtype) {
+          dtypeStr = `dtype=${dtype}`;
+        }
+        if (shape) {
+          let pyShape = shape.map((entry) => {
+            return entry === null ? 'None' : entry;
+          });
+          shapeStr = `.valid(shape_constraints(${pyShape.join(', ')}))`;
+        }
+        traitDef = `NDArray(${dtypeStr}${allowNoneArg})${shapeStr}`;
+        break;
+
+      case 'dataunion':
+        var {shape, dtype} = data;
+        let parts = [];
+        if (defValue !== '') {
+          parts.push(`${defValue}`);
+        }
+        if (dtype) {
+          parts.push(`dtype=${dtype}`);
+        }
+        if (shape) {
+          let pyShape = shape.map((entry) => {
+            return entry === null ? 'None' : entry;
+          });
+          parts.push(`shape_constraint=shape_constraints(${pyShape.join(', ')}))`);
+        }
+        traitDef = `DataUnion(${parts.join(', ')}${allowNoneArg})`;
+        break;
+
+      default:
+        throw new Error(`Unknown type: ${(data as any).type}`);
       }
     }
-
-    return traitDef + tag;
   }
+  if (innerTrait) {
+    return traitDef;
+  } else if (hasWidgetRef(data)) {
+    console.log('Has widget reference!')
+    tag = tag.slice(0, tag.length - 1) + ', **widget_serialization)';
+  }
+  return traitDef + tag;
 }

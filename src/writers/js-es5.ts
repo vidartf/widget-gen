@@ -9,7 +9,7 @@ import {
 } from './base';
 
 import {
-  INamedWidget, Parser, AttributeDef, IWidgetRefAttributeJSON, isUnionAttribute
+  INamedWidget, Parser, AttributeDef, isWidgetRef, isUnionAttribute
 } from '../core';
 
 
@@ -19,15 +19,18 @@ var widgets = require('@jupyter-widgets/base');
 var WidgetModel = widgets.WidgetModel;
 var DOMWidgetModel = widgets.DOMWidgetModel;
 var WidgetView = widgets.WidgetView;
-var DOMWidgetView = widgets.DOMWidgetView;`;
+var DOMWidgetView = widgets.DOMWidgetView;
+`;
 
 const INDENT = '  ';
 
 
 function getDefaultValue(data: AttributeDef): any {
-  if (data === null || data === undefined || typeof data === 'string' ||
+  if (data === null || data === undefined ||
       typeof data === 'number' || typeof data === 'boolean') {
     return data;
+  } else if (typeof data === 'string' ) {
+    return `'${data}'`;
   } else if (isUnionAttribute(data)) {
     return getDefaultValue(data.oneOf[0]);
   }
@@ -35,14 +38,10 @@ function getDefaultValue(data: AttributeDef): any {
   return data.default;
 }
 
-function isWidgetRef(data: AttributeDef): data is IWidgetRefAttributeJSON {
-  return !!data && typeof data === 'object' &&
-    !isUnionAttribute(data) && data.type === 'widgetRef';
-}
 
 
 export
-class JSWriter extends Writer {
+class JSES5Writer extends Writer {
   /**
    *
    */
@@ -54,7 +53,7 @@ class JSWriter extends Writer {
     let lines: string[] = [];
     let {name, inherits, properties} = data;
 
-    if (this.firstOutput) {
+    if (this.outputMultiple || this.firstOutput) {
       this.firstOutput = false;
       lines.push(...HEADER.split('\n'));
     }
@@ -64,8 +63,15 @@ class JSWriter extends Writer {
       console.warn(`Cannot use multiple inheritance for ${name} with JS.` +
         `Dropping ancestors: ${inherits.slice(1)}`);
     }
+    if (this.outputMultiple && inherits) {
+      let refs = sender.widgetNames.intersection(inherits);
+      console.debug(`${name} depends on: ${refs}`);
+      refs.forEach((ref) => {
+        lines.push(`var ${ref} = require('./${ref}').${ref};`);
+      });
+    }
     lines.push(
-      '', '', '',  // add some empty lines
+      '', '', // add some empty lines
       `var ${name}Model = ${inherits[0]}Model.extend({`,
       '',
     )
@@ -89,23 +95,43 @@ class JSWriter extends Writer {
       ``,
     );
 
-    if (Object.keys(serializers)) {
+    if (Object.keys(serializers).length) {
       lines.push(
         '}, {',
-        `${INDENT}serializers: _.extend({`,
+        `${INDENT}serializers: _.extend({},`,
+        `${INDENT}${INDENT}${inherits[0]}Model.serializers,`,
+        `${INDENT}${INDENT}{`,
         ...Object.keys(serializers).map((key) => {
-          return `${key}: ${serializers[key]}`;
+          return `${INDENT}${INDENT}${INDENT}${key}: ${serializers[key]}`;
         }),
-        `${INDENT}}, ${inherits[0]}.serializers)`
+        `${INDENT}${INDENT}}`,
+        `${INDENT})`,
       );
     }
     lines.push('});');
+    lines.push('')  // add an empty line at end
 
     if (this.outputMultiple) {
         let fname = path.join(this.output, `${name}.js`);
+        this.modules.push(name);
         fs.writeFileSync(fname, lines.join('\n'));
       } else {
         fs.appendFileSync(this.output, lines.join('\n'));
       }
   }
+
+  finalize(): Promise<void> {
+    if (this.outputMultiple) {
+      // Write init file for directory output
+      let fname = path.join(this.output, `index.js`);
+      let lines = this.modules.map((name) => {
+        return `export { ${name} } from './${name}';`;
+      });
+      lines.push('');  // add an empty line at end
+      return fs.writeFile(fname, lines.join('\n'));
+    }
+    return Promise.resolve();
+  }
+
+  modules: string[] = [];
 }
