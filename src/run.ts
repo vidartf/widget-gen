@@ -2,7 +2,7 @@
 import * as path from 'path';
 
 import {
-  Parser, JsonParser
+  Parser, JsonParser, PythonParser
 } from './parsers';
 
 import {
@@ -15,6 +15,8 @@ function makeParser(filename: string): Parser {
   case '':
   case '.json':
     return new JsonParser(filename);
+  case '.py':
+    return new PythonParser(filename);
   default:
     throw new Error(`Unknown file extension for file: ${filename}`);
   }
