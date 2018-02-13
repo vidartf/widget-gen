@@ -1,3 +1,6 @@
+
+import * as path from 'path';
+
 import {
   exec as execSync
 } from 'child_process';
@@ -21,12 +24,15 @@ import {
 const exec = promisify(execSync);
 
 
+let PYTHON_HELPER = path.resolve(__dirname, 'python_parser.py');
+
+
 export
 class PythonParser extends Parser {
 
   start(): Promise<void> {
-    return exec(`python python_converter.py "${this.filename}"`).then(({stdout, stderr}) => {
-      const data = JSON.parse(stdout) as IDefinition;
+    return exec(`python "${PYTHON_HELPER}" "${this.filename}"`, {windowsHide: true} as any).then(({stdout, stderr}) => {
+      const data = JSON.parse(stdout as any as string) as IDefinition;
       if (data.widgets === undefined) {
         throw new Error('Missing "widgets" key in definition file');
       }

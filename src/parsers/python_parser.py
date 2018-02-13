@@ -1,5 +1,6 @@
 
 import argparse
+import inspect
 import importlib
 import importlib.util
 import json
@@ -18,7 +19,7 @@ def _build_arg_parser():
 
 def main(args=None):
     if args is None:
-        args = sys.argv
+        args = sys.argv[1:]
     arguments = _build_arg_parser().parse_args(args)
     definition = convert(arguments.filename)
     json.dump(definition, sys.stdout, indent=2)
@@ -42,7 +43,7 @@ def find_widgets(filename=None, module_name=None, package=None):
 
     for candidate_name in candidates:
         candidate = getattr(mod, candidate_name)
-        if issubclass(candidate, Widget):
+        if inspect.isclass(candidate) and issubclass(candidate, Widget):
             yield (candidate_name, candidate)
 
 
@@ -75,7 +76,7 @@ def convertWidget(name, cls):
         definition['help'] = cls.__doc__
 
     if cls.__bases__:
-        definition['inherits'] = cls.__bases__
+        definition['inherits'] = [base.__name__ for base in cls.__bases__]
 
     properties = {}
     for name, trait in cls.class_own_traits(sync=True).items():
@@ -102,9 +103,9 @@ trait_to_type = {
 
 def convertTrait(trait):
     definition = {}
-    if trait.allow_none is not trait.Undefined:
+    if trait.allow_none is not traitlets.Undefined:
         definition['allowNull'] = trait.allow_none
-    if trait.help not in (trait.Undefined, '', None):
+    if trait.help not in (traitlets.Undefined, '', None):
         definition['help'] = trait.help
 
     if trait.default_value is not traitlets.Undefined:

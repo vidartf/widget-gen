@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha",
-    "build": "tsc",
+    "build": "tsc && node ./scripts/copy-files.js",
     "start": "node main.js",
     "manual": "npm run build && node main.js -o manual ./test/definitions/test1.json python js ts"
   },

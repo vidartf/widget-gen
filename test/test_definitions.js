@@ -20,17 +20,21 @@ describe('validate test definitions', () => {
 
   fs.readdirSync(dirname).forEach((fname) => {
 
-    it(`should validate ${fname}`, () => {
+    if (path.extname === '.json') {
 
-      return fs.readFile(path.join(dirname, fname), 'utf-8').then((content) => {
-        const definition = JSON.parse(content);
-        const jv = new JSONValidation();
-        let result = jv.validate(definition, definitionSchema);
-        const errorMsg = 'Definition has the following errors: ' + result.errors.join(', ');
-        expect(result.ok, errorMsg).to.be.true;
+      it(`should validate ${fname}`, () => {
+
+        return fs.readFile(path.join(dirname, fname), 'utf-8').then((content) => {
+          const definition = JSON.parse(content);
+          const jv = new JSONValidation();
+          let result = jv.validate(definition, definitionSchema);
+          const errorMsg = 'Definition has the following errors: ' + result.errors.join(', ');
+          expect(result.ok, errorMsg).to.be.true;
+        });
+
       });
 
-    });
+    }
 
   });
 

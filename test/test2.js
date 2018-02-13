@@ -20,12 +20,12 @@ function mkdtemp(prefix) {
   ));
 }
 
-describe('test1', () => {
+describe('test2', () => {
 
   describe('python', () => {
 
     it('should generate all the files', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test2.py');
       let outdir = null;
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
@@ -36,14 +36,9 @@ describe('test1', () => {
         return new Promise((resolve, reject) => {
           try {
             expect(dirFiles).to.eql([
-              "DataArray.py",
-              "DataContainer.py",
-              "DataSet.py",
-              "ImageData.py",
-              "Piece.py",
-              "UnstructuredGrid.py",
-              "VtkWidget.py",
-              "__init__.py",
+              "A.py",
+              "B.py",
+              '__init__.py',
             ]);
           } finally {
             rimraf(outdir, (error) => {
@@ -64,7 +59,7 @@ describe('test1', () => {
   describe('javascript', () => {
 
     it('should generate all the files', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test2.py');
       let outdir = null;
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
@@ -75,14 +70,9 @@ describe('test1', () => {
         return new Promise((resolve, reject) => {
           try {
             expect(dirFiles).to.eql([
-              "DataArray.js",
-              "DataContainer.js",
-              "DataSet.js",
-              "ImageData.js",
-              "Piece.js",
-              "UnstructuredGrid.js",
-              "VtkWidget.js",
-              "index.js",
+              "A.js",
+              "B.js",
+              'index.js',
             ]);
           } finally {
             rimraf(outdir, (error) => {
@@ -99,7 +89,7 @@ describe('test1', () => {
 
 
     it('should generate a single file with all the definitions', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test2.py');
       let outdir = null;
       let outfile = null;
       return mkdtemp('widget-gen').then((d) => {
@@ -122,13 +112,8 @@ describe('test1', () => {
               names.push(match[1]);
             }
             expect(names.sort()).to.eql([
-              "DataArray",
-              "DataContainer",
-              "DataSet",
-              "ImageData",
-              "Piece",
-              "UnstructuredGrid",
-              "VtkWidget",
+              "A",
+              "B",
             ])
           } finally {
             rimraf(outdir, (error) => {
