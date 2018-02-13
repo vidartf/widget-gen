@@ -118,6 +118,13 @@ def convertTrait(trait):
     for tt, type_name in trait_to_type.items():
         if isinstance(trait, tt):
             definition['type'] = type_name
+            if type_name == 'array':
+                subtraits = getattr(trait, _traits, None)
+                subtrait = getattr(trait, _trait, None)
+                if subtraits:
+                    definition['items'] = [convertTrait(subtt) for subtt in subtraits]
+                elif subtrait:
+                    definition['items'] = convertTrait(subtrait)
         elif isinstance(trait, traitlets.Union):
             definition['oneOf'] = [convertTrait(subtt) for subtt in trait.trait_types]
 
