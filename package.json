@@ -10,7 +10,9 @@
     "test": "mocha",
     "build": "tsc && node ./scripts/copy-files.js",
     "start": "node main.js",
-    "manual": "npm run build && node main.js -o manual ./test/definitions/test1.json python js ts"
+    "manual": "npm run build && node main.js -o manual ./test/definitions/test2.py python js ts",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm test"
   },
   "repository": {
     "type": "git",
