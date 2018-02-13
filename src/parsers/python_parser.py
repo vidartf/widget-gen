@@ -101,6 +101,13 @@ trait_to_type = {
 }
 
 
+def get_trait_default(trait):
+    if isinstance(trait, (traitlets.List, traitlets.Tuple)):
+        return trait.make_dynamic_default()
+    else:
+        return trait.default_value
+
+
 def convertTrait(trait):
     definition = {}
     if trait.allow_none is not traitlets.Undefined:
@@ -108,24 +115,32 @@ def convertTrait(trait):
     if trait.help not in (traitlets.Undefined, '', None):
         definition['help'] = trait.help
 
-    if trait.default_value is not traitlets.Undefined:
+    default = get_trait_default(trait)
+    if default is not trait.__class__.default_value:
         if isinstance(trait, DataUnion):
             # TODO: Extract shape and dtype constraints, and convert default value to list
             pass
         elif not isinstance(trait, traitlets.Union):
-            definition['default'] = trait.default_value
+            definition['default'] = default
 
     for tt, type_name in trait_to_type.items():
         if isinstance(trait, tt):
             definition['type'] = type_name
             if type_name == 'array':
-                subtraits = getattr(trait, _traits, None)
-                subtrait = getattr(trait, _trait, None)
-                if subtraits:
+                subtraits = getattr(trait, '_traits', None)
+                subtrait = getattr(trait, '_trait', None)
+                if subtraits not in (None, traitlets.Undefined):
                     definition['items'] = [convertTrait(subtt) for subtt in subtraits]
                 elif subtrait:
                     definition['items'] = convertTrait(subtrait)
-        elif isinstance(trait, traitlets.Union):
+            if type_name == 'widgetRef':
+                if inspect.isclass(trait.klass):
+                    definition['widgetType'] = trait.klass.__name__
+                else:
+                    definition['widgetType'] = trait.klass
+            break
+    else:
+        if isinstance(trait, traitlets.Union):
             definition['oneOf'] = [convertTrait(subtt) for subtt in trait.trait_types]
 
     return definition

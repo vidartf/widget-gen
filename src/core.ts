@@ -36,7 +36,7 @@ export
 interface IArrayAttributeJSON extends IBaseAttributeJSON {
   type: 'array';
   default?: any[] | null;
-  items: IAttributeJSON[] | IArrayAttributeJSON | undefined;
+  items?: IAttributeJSON[] | IAttributeJSON;
 }
 
 export
@@ -134,7 +134,7 @@ function getSubDefinitions(data: AttributeDef): AttributeDef[] {
   if (isUnionAttribute(data)) {
     directSubs = data.oneOf;
   } else if (isArrayAttribute(data) && data.items) {
-    directSubs = Array.isArray(data.items) ? data.items : [data.items!];
+    directSubs = Array.isArray(data.items) ? data.items : [data.items];
   } else {
     return [];
   }

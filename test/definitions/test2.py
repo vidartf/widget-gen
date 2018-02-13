@@ -6,12 +6,12 @@ from traitlets import Unicode, Instance, Union, List, Tuple, Dict, Int, CFloat, 
 
 class A(Widget):
     _model_name = Unicode('A').tag(sync=True)
-    _model_module = 'test2'
+    _model_module = Unicode('test2').tag(sync=True)
 
     string = Unicode(None, allow_none=True).tag(sync=True)
     boolean = Bool(True).tag(sync=True)
-    list = List(Int(), [1,2,3]).tag(sync=True)
-    tuple = Tuple((Int(), Unicode(), CFloat()), default_value=(3, 'foo', '4.5')).tag(sync=True)
+    list = List(Int(), [1, 2, 3]).tag(sync=True)
+    tuple = Tuple(Int(), Unicode(), CFloat(), default_value=(3, 'foo', '4.5')).tag(sync=True)
     dict = Dict().tag(sync=True)
 
     not_synced = Unicode()

@@ -105,7 +105,7 @@ class PythonWriter extends Writer {
 }
 
 
-function convertBoolean(value: any): string {
+function convertValue(value: any): string {
   if (value === true) {
     return 'True';
   } else if (value === false) {
@@ -113,7 +113,11 @@ function convertBoolean(value: any): string {
   } else if (value === null) {
     return 'None';
   } else if (value === undefined) {
-    return 'Undefined';
+    return '';
+  } else if (Array.isArray(value)) {
+    return `[${value.map(v => convertValue(v)).join(', ')}]`;
+  } else if (typeof value === 'string') {
+    return `'${value.toString()}'`;
   }
   return value.toString();
 }
@@ -133,7 +137,7 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
 
   } else if (typeof data === 'string') {
 
-    traitDef = `Unicode('${data}')`;
+    traitDef = `Unicode(${convertValue(data)})`;
 
   } else if (typeof data === 'number') {
 
@@ -145,7 +149,7 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
 
   } else if (typeof data === 'boolean') {
 
-    traitDef = `Bool(${convertBoolean(data)})`
+    traitDef = `Bool(${convertValue(data)})`
 
   } else {
 
@@ -154,8 +158,8 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
       tag = `.tag(sync=True, help='${data.help}')`
     }
     let allowNoneArg = '';
-    if (data.allowNull !== undefined) {
-      allowNoneArg = `, allow_none=${convertBoolean(data.allowNull)}`;
+    if (data.allowNull !== undefined && data.allowNull !== false) {
+      allowNoneArg = `, allow_none=${convertValue(data.allowNull)}`;
     }
     if (isUnionAttribute(data)) {
 
@@ -164,16 +168,7 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
 
     } else {
 
-      let defValue = data.default;
-      if (defValue === null) {
-        defValue = 'None';
-      } else if (defValue === undefined) {
-        defValue = '';
-      } else if (defValue === true) {
-        defValue = 'True';
-      } else if (defValue === false) {
-        defValue = 'False'
-      }
+      let defValue = convertValue(data.default);
       switch (data.type) {
 
       case 'int':
@@ -193,7 +188,15 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
         break;
 
       case 'object':
-        traitDef = `Dict(${defValue}${allowNoneArg})`;
+        let defArg;
+        if (data.default === undefined) {
+          defArg = '';
+          // Remove ', ' from start of allowNoneArg
+          allowNoneArg = allowNoneArg.slice(2);
+        } else {
+          defArg = `default_value=${defValue}`;
+        }
+        traitDef = `Dict(${defArg}${allowNoneArg})`;
         break;
 
       case 'array':
@@ -201,17 +204,23 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
         if (items === undefined) {
           traitDef = `Tuple(${defValue}${allowNoneArg})`;
         } else if (Array.isArray(items)) {
-          let itemDefs = [];
+          let lines = [];
           for (let item of items) {
-            itemDefs.push(makeTrait(item, true));
+            lines.push(makeTrait(item, true));
+          }
+          if (defValue) {
+            lines.push(`default_value=${defValue}`)
+          }
+          if (allowNoneArg) {
+            lines.push(allowNoneArg.slice(2));
           }
           traitDef = (
-            `Tuple((\n` +
-              `${INDENT}${INDENT}${itemDefs.join(`,\n${INDENT}${INDENT}`)}\n` +
-            `${INDENT})${allowNoneArg})`
+            `Tuple(\n` +
+            `${INDENT}${INDENT}${lines.join(`,\n${INDENT}${INDENT}`)}\n` +
+            `${INDENT})`
           );
         } else {
-          traitDef = `List(${makeTrait(items, true)}${allowNoneArg})`
+          traitDef = `List(${makeTrait(items, true)}${defValue ? `, default_value=${defValue}` : ''}${allowNoneArg})`
         }
         break;
 
@@ -268,7 +277,6 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
   if (innerTrait) {
     return traitDef;
   } else if (hasWidgetRef(data)) {
-    console.log('Has widget reference!')
     tag = tag.slice(0, tag.length - 1) + ', **widget_serialization)';
   }
   return traitDef + tag;
