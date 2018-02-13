@@ -1,6 +1,6 @@
 {
   "name": "widget-gen",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A node package for generating jupyter widget definitions from a JSON schema",
   "main": "src/index.ts",
   "directories": {
@@ -11,7 +11,7 @@
     "build": "tsc && node ./scripts/copy-files.js",
     "start": "node main.js",
     "manual": "npm run build && node main.js -o manual ./test/definitions/test2.py python js ts",
-    "prepack": "npm run build",
+    "prepare": "npm run build",
     "prepublishOnly": "npm test"
   },
   "repository": {
