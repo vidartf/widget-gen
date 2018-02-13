@@ -1,6 +1,10 @@
 
 import {
-  INamedWidget, Parser
+  Parser
+} from '../parsers';
+
+import {
+  INamedWidget
 } from '../core';
 
 import * as fs from 'fs-extra';

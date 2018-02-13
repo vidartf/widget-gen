@@ -9,7 +9,11 @@ import {
 } from './js-es6';
 
 import {
-  INamedWidget, Parser
+  Parser
+} from '../parsers';
+
+import {
+  INamedWidget
 } from '../core';
 
 

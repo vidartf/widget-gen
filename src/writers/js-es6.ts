@@ -9,7 +9,11 @@ import {
 } from './base';
 
 import {
-  INamedWidget, Parser, AttributeDef, isUnionAttribute, hasWidgetRef
+  Parser
+} from '../parsers';
+
+import {
+  INamedWidget, AttributeDef, isUnionAttribute, hasWidgetRef
 } from '../core';
 
 

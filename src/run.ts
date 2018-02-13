@@ -1,18 +1,29 @@
 
+import * as path from 'path';
 
 import {
-  Parser
-} from './core';
+  Parser, JsonParser
+} from './parsers';
 
 import {
   writers, Writer
 } from './writers';
 
 
+function makeParser(filename: string): Parser {
+  switch (path.extname(filename)) {
+  case '':
+  case '.json':
+    return new JsonParser(filename);
+  default:
+    throw new Error(`Unknown file extension for file: ${filename}`);
+  }
+}
+
 export
 function run(filename: string, languages: string[], outputDirectory?: string) {
   outputDirectory = outputDirectory || '.';
-  let parser = new Parser(filename);
+  let parser = makeParser(filename);
   let instances: Writer[] = [];
   for (let language of languages) {
     let writerCtor = writers[language];

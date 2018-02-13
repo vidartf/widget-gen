@@ -1,14 +1,7 @@
 
-import * as fs from 'fs-extra';
-
-import {
-  Signal, ISignal
-} from '@phosphor/signaling';
-
 import {
   MSet
 } from './setMethods';
-
 
 
 export
@@ -174,51 +167,4 @@ function getWidgetRefs(data: AttributeDef): MSet<string> {
     }
     return cum;
   }, []));
-}
-
-export
-class Parser {
-  constructor(protected filename: string) {
-  }
-
-  start(): Promise<void> {
-    return fs.readFile(this.filename).then((f) => {
-      const data = JSON.parse(f.toString()) as IDefinition;
-      if (data.widgets === undefined) {
-        throw new Error('Missing "widgets" key in definition file');
-      }
-      this._names = new MSet(Object.keys(data.widgets));
-      for (let widgetName of Object.keys(data.widgets)) {
-        let namedDef: INamedWidget = {
-          ...data.widgets[widgetName],
-          name: widgetName,
-        };
-        this._newWidget.emit(namedDef);
-      }
-    });
-  }
-
-  resolveInternalRefs(data: INamedWidget): MSet<string> {
-    let properties = data.properties;
-    if (!properties) {
-      return new MSet();
-    }
-    let refs: MSet<string> = new MSet();
-    for (let propName of Object.keys(properties)) {
-      let prop = properties[propName];
-      refs = refs.union(getWidgetRefs(prop));
-    }
-    return this.widgetNames.intersection(refs);
-  }
-
-  get newWidget(): ISignal<this, INamedWidget> {
-    return this._newWidget;
-  }
-
-  get widgetNames(): MSet<string> {
-    return this._names;
-  }
-
-  private _newWidget = new Signal<this, INamedWidget>(this);
-  private _names: MSet<string>;
 }
