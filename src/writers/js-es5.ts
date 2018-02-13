@@ -121,6 +121,7 @@ class JSES5Writer extends Writer {
         this.modules.push(name);
         fs.writeFileSync(fname, lines.join('\n'));
       } else {
+        lines.push(...makeExports(this.modules.map(name => `${name}Model`)));
         fs.appendFileSync(this.output, lines.join('\n'));
       }
   }

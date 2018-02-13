@@ -80,10 +80,12 @@ class PythonWriter extends Writer {
     lines.push('');  // add an empty line at end
 
     if (this.outputMultiple) {
+      lines.push(...makeAll([name]));
       let fname = path.join(this.output, `${name}.py`);
       this.modules.push(name);
       fs.writeFileSync(fname, lines.join('\n'));
     } else {
+      lines.push(...makeAll(this.modules));
       fs.appendFileSync(this.output, lines.join('\n'));
     }
   }
@@ -102,6 +104,11 @@ class PythonWriter extends Writer {
   }
 
   modules: string[] = [];
+}
+
+
+function makeAll(names: string[]) {
+  return [`__all__ = [${names.map(name => `'${name}'`).join(', ')}]`, ''];
 }
 
 

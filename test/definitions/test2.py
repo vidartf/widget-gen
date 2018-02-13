@@ -20,7 +20,7 @@ class A(Widget):
 class B(A):
     _model_name = Unicode('B').tag(sync=True)
 
-    ref = Instance(A).tag(sync=True)
+    ref = Instance(A).tag(sync=True, **widget_serialization)
 
 
 __all__ = ['A', 'B']
