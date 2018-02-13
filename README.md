@@ -1,4 +1,3 @@
-
 # widget-gen
 
 This is a utility library for auto-generating jupyter widget definitions
