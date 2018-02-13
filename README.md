@@ -20,5 +20,5 @@ Currently it speaks the following languages:
 
 It can read (parse) the widget definitions from:
 
-- A custom JSON format
+- A custom JSON schema-like format
 - Python widgets based on ipywidgets
