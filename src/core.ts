@@ -102,7 +102,7 @@ interface IDataUnionAttributeJSON extends IBaseAttributeJSON {
 export
 interface IUnionAttributeJSON {
   help?: string;
-  allowNull: boolean;
+  allowNull?: boolean;
   oneOf: IAttributeJSON[];
 }
 

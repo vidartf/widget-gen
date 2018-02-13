@@ -36,7 +36,7 @@ class TSWriter extends JSES6Writer {
       // Write init file for directory output
       let fname = path.join(this.output, `index.ts`);
       let lines = this.modules.map((name) => {
-        return `export { ${name} } from './${name}';`;
+        return `export { ${name}Model } from './${name}';`;
       });
       lines.push('');  // add an empty line at end
       return fs.writeFile(fname, lines.join('\n'));

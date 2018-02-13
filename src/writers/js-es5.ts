@@ -67,7 +67,7 @@ class JSES5Writer extends Writer {
       let refs = sender.widgetNames.intersection(inherits);
       console.debug(`${name} depends on: ${refs}`);
       refs.forEach((ref) => {
-        lines.push(`var ${ref} = require('./${ref}').${ref};`);
+        lines.push(`var ${ref}Model = require('./${ref}').${ref}Model;`);
       });
     }
     lines.push(
@@ -112,6 +112,7 @@ class JSES5Writer extends Writer {
     lines.push('')  // add an empty line at end
 
     if (this.outputMultiple) {
+        lines.push(...makeExports([`${name}Model`]));
         let fname = path.join(this.output, `${name}.js`);
         this.modules.push(name);
         fs.writeFileSync(fname, lines.join('\n'));
@@ -124,14 +125,45 @@ class JSES5Writer extends Writer {
     if (this.outputMultiple) {
       // Write init file for directory output
       let fname = path.join(this.output, `index.js`);
-      let lines = this.modules.map((name) => {
-        return `export { ${name} } from './${name}';`;
-      });
-      lines.push('');  // add an empty line at end
+      const lines = [
+        'var loadedModules = [',
+        ...this.modules.map((name) => {
+          return `${INDENT}require('./${name}'),`;
+        }),
+        '];',
+        '',
+        '// Re-export all symbols from modules:',
+        'for (var i in loadedModules) {',
+        `${INDENT}if (loadedModules.hasOwnProperty(i)) {`,
+        `${INDENT}${INDENT}var loadedModule = loadedModules[i];`,
+        `${INDENT}${INDENT}for (var target_name in loadedModule) {`,
+        `${INDENT}${INDENT}${INDENT}if (loadedModule.hasOwnProperty(target_name)) {`,
+        `${INDENT}${INDENT}${INDENT}${INDENT}module.exports[target_name] = loadedModule[target_name];`,
+        `${INDENT}${INDENT}${INDENT}}`,
+        `${INDENT}${INDENT}}`,
+        `${INDENT}}`,
+        '}',
+        '',
+      ];
       return fs.writeFile(fname, lines.join('\n'));
     }
     return Promise.resolve();
   }
 
   modules: string[] = [];
+}
+
+
+function makeExports(names: string[]): string[] {
+  const lines = [];
+  lines.push(
+    '',
+    'module.exports = {',
+    ...names.map((name) => {
+      return `${INDENT}${name}: ${name},`;
+    }),
+    '}',
+    '',
+  );
+  return lines;
 }
