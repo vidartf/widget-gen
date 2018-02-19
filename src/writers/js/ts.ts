@@ -5,7 +5,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import {
-  JSES6Writer
+  JSES6Writer, INDENT
 } from './js-es6';
 
 import {
@@ -16,6 +16,28 @@ import {
   INamedWidget
 } from '../../core';
 
+
+
+const HEADER = `
+import {
+  WidgetModel, DOMWidgetModel,
+  WidgetView, DOMWidgetView,
+  unpack_models, ManagerBase
+} from '@jupyter-widgets/base';
+
+
+/**
+ * Type declaration for general widget serializers.
+ *
+ * Declared in lieu of proper interface in jupyter-widgets.
+ */
+export interface ISerializers {
+  [key: string]: {
+      deserialize?: (value?: any, manager?: ManagerBase<any>) => any;
+      serialize?: (value?: any, widget?: WidgetModel) => any;
+  };
+}
+`;
 
 
 /**
@@ -30,7 +52,7 @@ class TSWriter extends JSES6Writer {
    * Process the widget definition
    */
   onWidget(sender: Parser, data: INamedWidget): void {
-    const lines = this.genLines(sender, data);
+    const lines = this.genLines(sender, data, HEADER);
     let {name} = data;
 
     if (this.outputMultiple) {
@@ -40,6 +62,22 @@ class TSWriter extends JSES6Writer {
       } else {
         fs.appendFileSync(this.output, lines.join('\n'));
       }
+  }
+
+  /**
+   * Generate lines for a static serializers attribute
+   * @param inherits The ancestors of the widget
+   * @param serializers Map of serializers to use
+   */
+  protected genSerializers(inherits: string[], serializers: {[key: string]: string}): string[] {
+    return [
+      `${INDENT}static serializers: ISerializers = {`,
+      `${INDENT}${INDENT}...${inherits[0]}Model.serializers,`,
+      ...Object.keys(serializers).map((key) => {
+        return `${INDENT}${INDENT}${key}: ${serializers[key]},`;
+      }),
+      `${INDENT}}`,
+    ];
   }
 
   /**

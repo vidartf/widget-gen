@@ -31,6 +31,7 @@ import {
 `;
 
 //  The indentation to use
+export
 const INDENT = '  ';
 
 
@@ -66,13 +67,16 @@ class JSES6Writer extends Writer {
   /**
    * Convert the widget definition into code lines.
    */
-  genLines(sender: Parser, data: INamedWidget): string[] {
+  genLines(sender: Parser, data: INamedWidget, header?: string): string[] {
+    if (header === undefined) {
+      header = HEADER;
+    }
     const lines: string[] = [];
     let {name, inherits, properties} = data;
 
     if (this.outputMultiple || this.firstWidget) {
       this.firstWidget = false;
-      lines.push(...HEADER.split('\n'));
+      lines.push(...header.split('\n'));
     }
 
     inherits = inherits || ['Widget'];
@@ -115,17 +119,28 @@ class JSES6Writer extends Writer {
 
     if (Object.keys(serializers).length) {
       lines.push(
-        `${INDENT}serializers = {`,
-        `${INDENT}${INDENT}...${inherits[0]}Model.serializers,`,
-        ...Object.keys(serializers).map((key) => {
-          return `${INDENT}${INDENT}${key}: ${serializers[key]},`;
-        }),
-        `${INDENT}}`
+        ...this.genSerializers(inherits, serializers),
       );
     }
     lines.push('}');
     lines.push('')  // add an empty line at end
     return lines;
+  }
+
+  /**
+   * Generate lines for a static serializers attribute
+   * @param inherits The ancestors of the widget
+   * @param serializers Map of serializers to use
+   */
+  protected genSerializers(inherits: string[], serializers: {[key: string]: string}): string[] {
+    return [
+      `${INDENT}serializers = {`,
+      `${INDENT}${INDENT}...${inherits[0]}Model.serializers,`,
+      ...Object.keys(serializers).map((key) => {
+        return `${INDENT}${INDENT}${key}: ${serializers[key]},`;
+      }),
+      `${INDENT}}`,
+    ];
   }
 
   /**
