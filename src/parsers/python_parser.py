@@ -7,7 +7,7 @@ import json
 import os
 import sys
 
-from ipywidgets import Widget
+from ipywidgets import Widget, DOMWidget
 from ipydatawidgets import NDArray, DataUnion
 import traitlets
 
@@ -44,7 +44,8 @@ def find_widgets(filename=None, module_name=None, package=None):
 
     for candidate_name in candidates:
         candidate = getattr(mod, candidate_name)
-        if inspect.isclass(candidate) and issubclass(candidate, Widget):
+        if (inspect.isclass(candidate) and issubclass(candidate, Widget) and 
+                candidate not in (Widget, DOMWidget)):
             yield (candidate_name, candidate)
 
 
