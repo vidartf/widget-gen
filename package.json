@@ -3,7 +3,9 @@
   "version": "0.2.0",
   "description": "A node package for generating jupyter widget definitions from a JSON schema",
   "main": "src/index.ts",
-  "bin": { "widgetgen" : "./main.js" },
+  "bin": {
+    "widgetgen": "./main.js"
+  },
   "directories": {
     "test": "tests"
   },
