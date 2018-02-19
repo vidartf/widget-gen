@@ -14,6 +14,9 @@ import {
 } from '../setMethods';
 
 
+/**
+ * Parser for our custom JSON schema format.
+ */
 export
 class JsonParser extends Parser {
 

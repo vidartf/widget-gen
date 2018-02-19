@@ -45,8 +45,8 @@ class PythonWriter extends Writer {
     let lines: string[] = [];
     let {name, inherits, properties} = data;
 
-    if (this.outputMultiple || this.firstOutput) {
-      this.firstOutput = false;
+    if (this.outputMultiple || this.firstWidget) {
+      this.firstWidget = false;
       lines.push(...HEADER.split('\n'));
     }
     if (this.outputMultiple) {

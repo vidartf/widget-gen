@@ -18,10 +18,17 @@ import {
 
 
 
-
+/**
+ * Write typescript code.
+ *
+ * Extends the ES6 writer as TS is a superset of ES6.
+ */
 export
 class TSWriter extends JSES6Writer {
 
+  /**
+   * Process the widget definition
+   */
   onWidget(sender: Parser, data: INamedWidget): void {
     const lines = this.genLines(sender, data);
     let {name} = data;
@@ -35,6 +42,9 @@ class TSWriter extends JSES6Writer {
       }
   }
 
+  /**
+   * Called when all widgets are parsed. Writes index.ts if appropriate.
+   */
   finalize(): Promise<void> {
     if (this.outputMultiple) {
       // Write init file for directory output
@@ -48,5 +58,8 @@ class TSWriter extends JSES6Writer {
     return Promise.resolve();
   }
 
+  /**
+   * An array of all the module names written to disk if multi-output.
+   */
   modules: string[] = [];
 }

@@ -17,6 +17,7 @@ import {
 } from '../core';
 
 
+//  The common header to put at the top of each generated file
 const HEADER = `
 var _ = require('underscore');
 var widgets = require('@jupyter-widgets/base');
@@ -26,9 +27,15 @@ var WidgetView = widgets.WidgetView;
 var DOMWidgetView = widgets.DOMWidgetView;
 `;
 
+//  The indentation to use
 const INDENT = '  ';
 
 
+/**
+ * Get the default value formatted for JavaScript
+ *
+ * @param data The attribute whose default value to use
+ */
 function getDefaultValue(data: AttributeDef): any {
   if (data === null || data === undefined ||
       typeof data === 'number' || typeof data === 'boolean') {
@@ -44,21 +51,24 @@ function getDefaultValue(data: AttributeDef): any {
 
 
 
+/**
+ * Javascript ES5 code writer.
+ *
+ * Will generate ES5 code, but will have a dependency on underscore
+ * for utility functions.
+ */
 export
 class JSES5Writer extends Writer {
-  /**
-   *
-   */
-  constructor(output: string) {
-    super(output);
-  }
 
+  /**
+   * Process the widget definition
+   */
   onWidget(sender: Parser, data: INamedWidget): void {
     let lines: string[] = [];
     let {name, inherits, properties} = data;
 
-    if (this.outputMultiple || this.firstOutput) {
-      this.firstOutput = false;
+    if (this.outputMultiple || this.firstWidget) {
+      this.firstWidget = false;
       lines.push(...HEADER.split('\n'));
     }
 
@@ -126,6 +136,9 @@ class JSES5Writer extends Writer {
       }
   }
 
+  /**
+   * Called when all widgets are parsed. Writes index.js if appropriate.
+   */
   finalize(): Promise<void> {
     if (this.outputMultiple) {
       // Write init file for directory output
@@ -155,10 +168,19 @@ class JSES5Writer extends Writer {
     return Promise.resolve();
   }
 
+  /**
+   * An array of all the module names written to disk if multi-output.
+   */
   modules: string[] = [];
 }
 
 
+/**
+ * Utility method for creating a module.exports statement
+ *
+ * @param {string[]} names The names to export
+ * @returns {string[]} Output lines as an array
+ */
 function makeExports(names: string[]): string[] {
   const lines = [];
   lines.push(

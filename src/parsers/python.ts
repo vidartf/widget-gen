@@ -23,10 +23,13 @@ import {
 
 const exec = promisify(execSync);
 
-
+// Path to python implementation of the parser
 let PYTHON_HELPER = path.resolve(__dirname, 'python_parser.py');
 
 
+/**
+ * Parser for generating widgets from Widget definitions in python.
+ */
 export
 class PythonParser extends Parser {
 
