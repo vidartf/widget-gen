@@ -9,16 +9,8 @@ import {
 } from './python';
 
 import {
-  JSES5Writer
-} from './js-es5';
-
-import {
-  JSES6Writer
-} from './js-es6';
-
-import {
-  TSWriter
-} from './ts';
+  JSES5Writer, JSES6Writer, TSWriter
+} from './js';
 
 
 export {

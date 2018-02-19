@@ -10,11 +10,11 @@ import {
 
 import {
   Parser
-} from '../parsers';
+} from '../../parsers';
 
 import {
   INamedWidget
-} from '../core';
+} from '../../core';
 
 
 

@@ -6,15 +6,19 @@ import * as path from 'path';
 
 import {
   Writer
-} from './base';
+} from '../base';
 
 import {
   Parser
-} from '../parsers';
+} from '../../parsers';
 
 import {
-  INamedWidget, AttributeDef, isWidgetRef, isUnionAttribute
-} from '../core';
+  INamedWidget, isWidgetRef
+} from '../../core';
+
+import {
+  getDefaultValue
+} from './utils';
 
 
 //  The common header to put at the top of each generated file
@@ -31,25 +35,6 @@ var DOMWidgetView = widgets.DOMWidgetView;
 const INDENT = '  ';
 
 
-/**
- * Get the default value formatted for JavaScript
- *
- * @param data The attribute whose default value to use
- */
-function getDefaultValue(data: AttributeDef): any {
-  if (data === null || data === undefined ||
-      typeof data === 'number' || typeof data === 'boolean') {
-    return data;
-  } else if (typeof data === 'string' ) {
-    return `'${data}'`;
-  } else if (isUnionAttribute(data)) {
-    return getDefaultValue(data.oneOf[0]);
-  }
-  // JSON object
-  return data.default;
-}
-
-
 
 /**
  * Javascript ES5 code writer.
@@ -59,6 +44,14 @@ function getDefaultValue(data: AttributeDef): any {
  */
 export
 class JSES5Writer extends Writer {
+
+  constructor(output: string) {
+    super(output);
+    if (!this.outputMultiple) {
+      // Clear the file
+      fs.writeFileSync(this.output, '');
+    }
+  }
 
   /**
    * Process the widget definition

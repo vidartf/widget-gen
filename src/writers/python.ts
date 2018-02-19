@@ -39,6 +39,10 @@ class PythonWriter extends Writer {
    */
   constructor(output: string) {
     super(output);
+    if (!this.outputMultiple) {
+      // Clear the file
+      fs.writeFileSync(this.output, '');
+    }
   }
 
   onWidget(sender: Parser, data: INamedWidget): void {
