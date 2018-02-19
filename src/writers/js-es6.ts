@@ -17,6 +17,7 @@ import {
 } from '../core';
 
 
+//  The common header to put at the top of each generated file
 const HEADER = `
 import {
   WidgetModel, DOMWidgetModel,
