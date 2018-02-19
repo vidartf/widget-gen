@@ -21,3 +21,25 @@ It can read (parse) the widget definitions from:
 
 - A custom JSON schema-like format
 - Python widgets based on ipywidgets
+
+
+## Installation
+
+```bash
+npm install [-g] widget-gen
+```
+
+## Usage
+
+```bash
+> widgetgen --help
+  Usage: main [options] <file> [languages...]
+
+
+  Options:
+
+    -V, --version                output the version number
+    -p, --parser [parser]        The name of the parser to use, either "json" or "python".
+    -o, --outputdir [outputdir]  The output directory
+    -h, --help                   output usage information
+```
