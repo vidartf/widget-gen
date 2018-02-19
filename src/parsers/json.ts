@@ -21,7 +21,7 @@ export
 class JsonParser extends Parser {
 
   start(): Promise<void> {
-    return fs.readFile(this.filename).then((f) => {
+    return fs.readFile(this.input).then((f) => {
       const data = JSON.parse(f.toString()) as IDefinition;
       if (data.widgets === undefined) {
         throw new Error('Missing "widgets" key in definition file');

@@ -37,9 +37,9 @@ abstract class Parser {
   /**
    * Initialize the parser.
    *
-   * @param filename The file to parse
+   * @param input String input to the parser, typically a filename
    */
-  constructor(protected filename: string) {
+  constructor(protected input: string) {
   }
 
   /**

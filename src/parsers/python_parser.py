@@ -4,6 +4,7 @@ import inspect
 import importlib
 import importlib.util
 import json
+import os
 import sys
 
 from ipywidgets import Widget
@@ -13,7 +14,7 @@ import traitlets
 
 def _build_arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('filename')
+    parser.add_argument('input')
     return parser
 
 
@@ -21,7 +22,7 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
     arguments = _build_arg_parser().parse_args(args)
-    definition = convert(arguments.filename)
+    definition = convert(arguments.input)
     json.dump(definition, sys.stdout, indent=2)
     return 0
 
@@ -57,12 +58,17 @@ def convert_module(module_name, package=None):
     return dict(widgets=widget_definitions)
 
 
-def convert(filename):
+def convert(value):
     """Convert widget definitions to JSON-able object"""
     widget_definitions = {}
 
-    for (name, cls) in find_widgets(filename=filename):
-        widget_definitions[name] = convertWidget(name, cls)
+    if (os.path.splitext(value)[1] == '.py'):
+        for (name, cls) in find_widgets(filename=value):
+            widget_definitions[name] = convertWidget(name, cls)
+    else:
+        # Assume input is module name
+        for (name, cls) in find_widgets(module_name=value):
+            widget_definitions[name] = convertWidget(name, cls)
 
     return dict(widgets=widget_definitions)
 

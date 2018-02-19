@@ -36,7 +36,7 @@ class PythonParser extends Parser {
   start(): Promise<void> {
     // This calls out to an implementation in python, that pipes back JSON
     // in our custom format, see JsonParser.
-    const cmd = `python "${PYTHON_HELPER}" "${this.filename}"`;
+    const cmd = `python "${PYTHON_HELPER}" "${this.input}"`;
     return exec(cmd, {windowsHide: true} as any).then(({stdout, stderr}) => {
       const data = JSON.parse(stdout as any as string) as IDefinition;
       if (data.widgets === undefined) {

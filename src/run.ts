@@ -10,7 +10,18 @@ import {
 } from './writers';
 
 
-function makeParser(filename: string): Parser {
+function makeParser(filename: string, parserName?: string): Parser {
+  if (parserName !== undefined) {
+    switch (parserName.toLowerCase()) {
+      case 'json':
+        return new JsonParser(filename);
+      case 'py':
+      case 'python':
+        return new PythonParser(filename);
+      default:
+        throw new Error(`Unknown parser name: ${parserName}`);
+    }
+  }
   switch (path.extname(filename)) {
   case '':
   case '.json':
@@ -23,9 +34,9 @@ function makeParser(filename: string): Parser {
 }
 
 export
-function run(filename: string, languages: string[], outputDirectory?: string) {
+function run(filename: string, languages: string[], outputDirectory?: string, parserName?: string) {
   outputDirectory = outputDirectory || '.';
-  let parser = makeParser(filename);
+  let parser = makeParser(filename, parserName);
   let instances: Writer[] = [];
   for (let language of languages) {
     let writerCtor = writers[language];
