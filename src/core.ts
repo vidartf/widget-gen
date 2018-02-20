@@ -195,6 +195,24 @@ function isArrayAttribute(data: AttributeDef): data is IArrayAttributeJSON {
 }
 
 /**
+ * Check whether the attribute defintion is for an ndarray type.
+ */
+export
+function isNDArray(data: AttributeDef): data is INDArrayAttributeJSON {
+  return !!data && typeof data === 'object' &&
+    !isUnionAttribute(data) && data.type === 'ndarray';
+}
+
+/**
+ * Check whether the attribute defintion is for an dataunion type.
+ */
+export
+function isDataUnion(data: AttributeDef): data is IDataUnionAttributeJSON {
+  return !!data && typeof data === 'object' &&
+    !isUnionAttribute(data) && data.type === 'dataunion';
+}
+
+/**
  * Find all sub-definitions of an attribute defintion.
  *
  * @export

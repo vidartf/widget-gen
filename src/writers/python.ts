@@ -260,6 +260,7 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
           shapeStr = `.valid(shape_constraints(${pyShape.join(', ')}))`;
         }
         traitDef = `NDArray(${dtypeStr}${allowNoneArg})${shapeStr}`;
+        tag = tag.slice(0, tag.length - 1) + ', **array_serialization)';
         break;
 
       case 'dataunion':
@@ -278,6 +279,7 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
           parts.push(`shape_constraint=shape_constraints(${pyShape.join(', ')}))`);
         }
         traitDef = `DataUnion(${parts.join(', ')}${allowNoneArg})`;
+        tag = tag.slice(0, tag.length - 1) + ', **data_union_serialization)';
         break;
 
       default:

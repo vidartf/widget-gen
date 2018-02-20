@@ -13,7 +13,7 @@ import {
 } from '../../parsers';
 
 import {
-  INamedWidget, hasWidgetRef
+  INamedWidget, hasWidgetRef, isDataUnion, isNDArray
 } from '../../core';
 
 import {
@@ -22,12 +22,17 @@ import {
 
 
 //  The common header to put at the top of each generated file
+export
 const HEADER = `
 import {
   WidgetModel, DOMWidgetModel,
   WidgetView, DOMWidgetView,
   unpack_models
 } from '@jupyter-widgets/base';
+
+import {
+  data_union_serialization, array_serialization
+} from 'jupyter-dataserializers';
 `;
 
 //  The indentation to use
@@ -106,7 +111,11 @@ class JSES6Writer extends Writer {
       for (let key of Object.keys(properties)) {
         lines.push(
           `${INDENT}${INDENT}${INDENT}${key}: ${getDefaultValue(properties[key])},`);
-        if (hasWidgetRef(properties[key])) {
+        if (isDataUnion(properties[key])) {
+          serializers[key] = 'data_union_serialization';
+        } else if (isNDArray(properties[key])) {
+          serializers[key] = 'array_serialization';
+        } else if (hasWidgetRef(properties[key])) {
           serializers[key] = '{ deserialize: unpack_models }';
         }
       }
@@ -139,7 +148,7 @@ class JSES6Writer extends Writer {
       ...Object.keys(serializers).map((key) => {
         return `${INDENT}${INDENT}${key}: ${serializers[key]},`;
       }),
-      `${INDENT}}`,
+      `${INDENT}};`,
     ];
   }
 

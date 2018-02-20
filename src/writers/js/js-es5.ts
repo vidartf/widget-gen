@@ -13,7 +13,7 @@ import {
 } from '../../parsers';
 
 import {
-  INamedWidget, isWidgetRef
+  INamedWidget, isWidgetRef, isDataUnion, isNDArray
 } from '../../core';
 
 import {
@@ -29,6 +29,10 @@ var WidgetModel = widgets.WidgetModel;
 var DOMWidgetModel = widgets.DOMWidgetModel;
 var WidgetView = widgets.WidgetView;
 var DOMWidgetView = widgets.DOMWidgetView;
+
+var dataserializers = require('jupyter-dataserializers');
+var data_union_serialization = dataserializers.data_union_serialization;
+var array_serialization = dataserializers.array_serialization;
 `;
 
 //  The indentation to use
@@ -91,7 +95,11 @@ class JSES5Writer extends Writer {
       for (let key of Object.keys(properties)) {
         lines.push(
           `${INDENT}${INDENT}${INDENT}${key}: ${getDefaultValue(properties[key])},`);
-        if (isWidgetRef(properties[key])) {
+          if (isDataUnion(properties[key])) {
+            serializers[key] = 'data_union_serialization';
+          } else if (isNDArray(properties[key])) {
+            serializers[key] = 'array_serialization';
+          } else if (isWidgetRef(properties[key])) {
           serializers[key] = '{ deserialize: widgets.unpack_models }';
         }
       }

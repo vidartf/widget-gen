@@ -5,7 +5,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import {
-  JSES6Writer, INDENT
+  JSES6Writer, INDENT, HEADER as ES6_HEADER
 } from './js-es6';
 
 import {
@@ -18,11 +18,9 @@ import {
 
 
 
-const HEADER = `
+const HEADER = `${ES6_HEADER}
 import {
-  WidgetModel, DOMWidgetModel,
-  WidgetView, DOMWidgetView,
-  unpack_models, ManagerBase
+  ManagerBase
 } from '@jupyter-widgets/base';
 
 
@@ -71,12 +69,12 @@ class TSWriter extends JSES6Writer {
    */
   protected genSerializers(inherits: string[], serializers: {[key: string]: string}): string[] {
     return [
-      `${INDENT}static serializers: ISerializers = {`,
+      `${INDENT}static serializers = {`,
       `${INDENT}${INDENT}...${inherits[0]}Model.serializers,`,
       ...Object.keys(serializers).map((key) => {
         return `${INDENT}${INDENT}${key}: ${serializers[key]},`;
       }),
-      `${INDENT}}`,
+      `${INDENT}};`,
     ];
   }
 
