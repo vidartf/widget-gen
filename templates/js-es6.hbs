@@ -1,0 +1,40 @@
+import {
+  WidgetModel, DOMWidgetModel,
+  WidgetView, DOMWidgetView,
+  unpack_models
+} from '@jupyter-widgets/base';
+
+import {
+  data_union_serialization, array_serialization
+} from 'jupyter-dataserializers';
+{{#if outputMultiple}}
+
+{{#each localDependencies as |ref|}}
+import { {{{ ref }}}Model } from './{{{ ref }}}';
+{{/each}}
+{{/if}}
+{{#each widgets as |widget|}}
+
+
+export
+class {{{ widget.name }}}Model extends {{{ widget.inherits.[0] }}}Model {
+
+  defaults() {
+    return {...super.defaults(), ... {
+      {{#if widget.properties}}
+      {{#each widget.properties as |prop propName|}}
+      {{{ propName }}}: {{{ prop.default }}},
+      {{/each}}
+      {{/if}}
+    }};
+  }
+
+  serializers = {
+    ...{{{ widget.inherits.[0] }}}Model.serializers,
+    {{#each widget.serializers as |serializer key|}}
+    {{{ key }}}: {{{ serializer }}},
+    {{/each}}
+  }
+
+}
+{{/each}}

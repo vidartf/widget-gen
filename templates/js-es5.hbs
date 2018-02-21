@@ -1,0 +1,45 @@
+var _ = require('underscore');
+var widgets = require('@jupyter-widgets/base');
+var WidgetModel = widgets.WidgetModel;
+var DOMWidgetModel = widgets.DOMWidgetModel;
+var WidgetView = widgets.WidgetView;
+var DOMWidgetView = widgets.DOMWidgetView;
+
+var dataserializers = require('jupyter-dataserializers');
+var data_union_serialization = dataserializers.data_union_serialization;
+var array_serialization = dataserializers.array_serialization;
+{{#if outputMultiple}}
+
+{{#each localDependencies as |ref|}}
+var {{{ ref }}}Model = require('./{{{ ref }}}').{{{ ref }}}Model;
+{{/each}}
+{{/if}}
+{{#each widgets as |widget|}}
+
+
+export
+var {{{ widget.name }}}Model = {{{ widget.inherits.[0] }}}Model.extend({
+
+  defaults: function() {
+    return _.extend({{{ widget.inherits.[0] }}}.prototype.defaults, {
+      {{#if widget.properties}}
+      {{#each widget.properties as |prop propName|}}
+      {{{ propName }}}: {{{ prop.default }}},
+      {{/each}}
+      {{/if}}
+    });
+  },
+
+}, {
+
+  serializers: _.extend({},
+    {{{ widget.inherits.[0] }}}Model.serializers,
+    {
+      {{#each widget.serializers as |serializer key|}}
+      {{{ key }}}: {{{ serializer }}},
+      {{/each}}
+    },
+  }),
+
+});
+{{/each}}

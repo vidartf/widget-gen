@@ -1,0 +1,56 @@
+
+
+
+import {
+  WidgetModel, DOMWidgetModel,
+  WidgetView, DOMWidgetView,
+  unpack_models, ManagerBase
+} from '@jupyter-widgets/base';
+
+import {
+  data_union_serialization, array_serialization
+} from 'jupyter-dataserializers';
+
+
+/**
+ * Type declaration for general widget serializers.
+ *
+ * Declared in lieu of proper interface in jupyter-widgets.
+ */
+export interface ISerializers {
+  [key: string]: {
+      deserialize?: (value?: any, manager?: ManagerBase<any>) => any;
+      serialize?: (value?: any, widget?: WidgetModel) => any;
+  };
+}
+{{#if outputMultiple}}
+
+{{#each localDependencies as |ref|}}
+import { {{{ ref }}}Model } from './{{{ ref }}}';
+{{/each}}
+{{/if}}
+{{#each widgets as |widget|}}
+
+
+export
+class {{{ widget.name }}}Model extends {{{ widget.inherits.[0] }}}Model {
+
+  defaults() {
+    return {...super.defaults(), ... {
+      {{#if widget.properties}}
+      {{#each widget.properties as |prop propName|}}
+      {{{ propName }}}: {{{ prop.default }}},
+      {{/each}}
+      {{/if}}
+    }};
+  }
+
+  static serializers = {
+    ...{{{ widget.inherits.[0] }}}Model.serializers,
+    {{#each widget.serializers as |serializer key|}}
+    {{{ key }}}: {{{ serializer }}},
+    {{/each}}
+  }
+
+}
+{{/each}}
