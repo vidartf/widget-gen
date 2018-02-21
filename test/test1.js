@@ -115,7 +115,92 @@ describe('test1', () => {
               "widgets.js",
             ]);
             const content = fs.readFileSync(outfile, {encoding: 'utf-8'});
-            const pattern = /\nvar (\w(\w|[_0-9])*)Model = (\w(\w|[_0-9])*)Model.extend\({\n/g;
+            const pattern = /^var (\w(\w|[_0-9])*)Model = (\w(\w|[_0-9])*)Model.extend\({$/gm;
+            const names = [];
+            let match;
+            while (match = pattern.exec(content)) {
+              names.push(match[1]);
+            }
+            expect(names.sort()).to.eql([
+              "DataArray",
+              "DataContainer",
+              "DataSet",
+              "ImageData",
+              "Piece",
+              "UnstructuredGrid",
+              "VtkWidget",
+            ])
+          } finally {
+            rimraf(outdir, (error) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve();
+              }
+            });
+          }
+        });
+      });
+    });
+
+  });
+
+
+  describe('ts', () => {
+
+    it('should generate all the files', () => {
+      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let outdir = null;
+      return mkdtemp('widget-gen').then((d) => {
+        outdir = d;
+        return run(fname, ['ts'], outdir);
+      }).then(() => {
+        return fs.readdir(outdir);
+      }).then((dirFiles) => {
+        return new Promise((resolve, reject) => {
+          try {
+            expect(dirFiles).to.eql([
+              "DataArray.ts",
+              "DataContainer.ts",
+              "DataSet.ts",
+              "ImageData.ts",
+              "Piece.ts",
+              "UnstructuredGrid.ts",
+              "VtkWidget.ts",
+              "index.ts",
+            ]);
+          } finally {
+            rimraf(outdir, (error) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve();
+              }
+            });
+          }
+        });
+      });
+    });
+
+
+    it('should generate a single file with all the definitions', () => {
+      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let outdir = null;
+      let outfile = null;
+      return mkdtemp('widget-gen').then((d) => {
+        outdir = d;
+        outfile = path.join(outdir, 'widgets.ts');
+        return run(fname, ['ts'], outfile);
+      }).then(() => {
+        return fs.readdir(outdir);
+      }).then((dirFiles) => {
+        return new Promise((resolve, reject) => {
+          try {
+            expect(dirFiles).to.eql([
+              "widgets.ts",
+            ]);
+            const content = fs.readFileSync(outfile, {encoding: 'utf-8'});
+            const pattern = /^class (\w(\w|[_0-9])*?)Model extends (\w(\w|[_0-9])*?)Model \{$/gm;
             const names = [];
             let match;
             while (match = pattern.exec(content)) {
