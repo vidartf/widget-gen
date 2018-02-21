@@ -10,7 +10,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --timeout 10000",
     "build": "tsc && node ./scripts/copy-files.js",
     "start": "node main.js",
     "manual": "npm run build && node main.js -o manual ./test/definitions/test2.py python js ts",
