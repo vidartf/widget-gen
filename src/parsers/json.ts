@@ -6,7 +6,11 @@ import {
 } from './base';
 
 import {
-  IDefinition, INamedWidget
+  IDefinition, translatePropertiesToInternal
+} from './formatTypes'
+
+import {
+  IWidget
 } from '../core';
 
 import {
@@ -22,19 +26,34 @@ class JsonParser extends Parser {
 
   start(): Promise<void> {
     return fs.readFile(this.input).then((f) => {
-      const data = JSON.parse(f.toString()) as IDefinition;
-      if (data.widgets === undefined) {
-        throw new Error('Missing "widgets" key in definition file');
-      }
-      this._names = new MSet(Object.keys(data.widgets));
-      for (let widgetName of Object.keys(data.widgets)) {
-        let namedDef: INamedWidget = {
-          ...data.widgets[widgetName],
-          name: widgetName,
-        };
-        this._newWidget.emit(namedDef);
-      }
+      this.processDefinition(JSON.parse(f.toString()) as IDefinition);
     });
+  }
+
+  processDefinition(data: IDefinition) {
+    if (data.widgets === undefined) {
+      throw new Error('Missing "widgets" key in definition file');
+    }
+    this._names = new MSet(Object.keys(data.widgets));
+    for (let name of Object.keys(data.widgets)) {
+      let def = data.widgets[name];
+      let properties = translatePropertiesToInternal(def.properties);
+      let refs = this.resolveInternalRefs(properties);
+      if (def.inherits) {
+        // Include local ancestors in refs
+        refs = refs.union(this.widgetNames.intersection(def.inherits));
+      }
+
+      let widget: IWidget = {
+        ...def,
+        properties,
+        name,
+        localDependencies: [...refs],
+        // Default base class:
+        inherits: def.inherits ? def.inherits : ['Widget'],
+      };
+      this._newWidget.emit(widget);
+    }
   }
 
   get widgetNames(): MSet<string> {

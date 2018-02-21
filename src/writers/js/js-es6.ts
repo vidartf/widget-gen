@@ -13,7 +13,7 @@ import {
 } from '../../parsers';
 
 import {
-  INamedWidget, hasWidgetRef, isDataUnion, isNDArray
+  IWidget, hasWidgetRef, Attributes
 } from '../../core';
 
 import {
@@ -57,7 +57,7 @@ class JSES6Writer extends Writer {
   /**
    * Process the widget definition
    */
-  onWidget(sender: Parser, data: INamedWidget): void {
+  onWidget(sender: Parser, data: IWidget): void {
     const lines = this.genLines(sender, data);
 
     if (this.outputMultiple) {
@@ -72,7 +72,7 @@ class JSES6Writer extends Writer {
   /**
    * Convert the widget definition into code lines.
    */
-  genLines(sender: Parser, data: INamedWidget, header?: string): string[] {
+  genLines(sender: Parser, data: IWidget, header?: string): string[] {
     if (header === undefined) {
       header = HEADER;
     }
@@ -111,9 +111,9 @@ class JSES6Writer extends Writer {
       for (let key of Object.keys(properties)) {
         lines.push(
           `${INDENT}${INDENT}${INDENT}${key}: ${getDefaultValue(properties[key])},`);
-        if (isDataUnion(properties[key])) {
+        if (Attributes.isDataUnion(properties[key])) {
           serializers[key] = 'data_union_serialization';
-        } else if (isNDArray(properties[key])) {
+        } else if (Attributes.isNDArray(properties[key])) {
           serializers[key] = 'array_serialization';
         } else if (hasWidgetRef(properties[key])) {
           serializers[key] = '{ deserialize: unpack_models }';

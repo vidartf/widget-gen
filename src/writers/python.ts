@@ -13,7 +13,7 @@ import {
 } from '../parsers';
 
 import {
-  INamedWidget, AttributeDef, isUnionAttribute, hasWidgetRef,
+  IWidget, Attributes, hasWidgetRef,
 } from '../core';
 
 
@@ -45,7 +45,7 @@ class PythonWriter extends Writer {
     }
   }
 
-  onWidget(sender: Parser, data: INamedWidget): void {
+  onWidget(sender: Parser, data: IWidget): void {
     let lines: string[] = [];
     let {name, inherits, properties} = data;
 
@@ -54,7 +54,7 @@ class PythonWriter extends Writer {
       lines.push(...HEADER.split('\n'));
     }
     if (this.outputMultiple) {
-      let refs = sender.resolveInternalRefs(data);
+      let refs = sender.resolveInternalRefs(data.properties);
       if (data.inherits) {
         let localSuper = sender.widgetNames.intersection(data.inherits);
         refs = refs.union(localSuper);
@@ -134,7 +134,7 @@ function convertValue(value: any): string {
 }
 
 
-function makeTrait(data: AttributeDef, innerTrait=false): string {
+function makeTrait(data: Attributes.Attribute, innerTrait=false): string {
   let traitDef: string = 'Any()';
   let tag = '.tag(sync=True)'
 
@@ -172,7 +172,7 @@ function makeTrait(data: AttributeDef, innerTrait=false): string {
     if (data.allowNull !== undefined && data.allowNull !== false) {
       allowNoneArg = `, allow_none=${convertValue(data.allowNull)}`;
     }
-    if (isUnionAttribute(data)) {
+    if (Attributes.isUnion(data)) {
 
       const defs = data.oneOf.map((subdata) => makeTrait(subdata, true));
       traitDef = `Union([\n${INDENT}${INDENT}${defs.join(`,\n${INDENT}${INDENT}`)}\n${INDENT}]${allowNoneArg})`;

@@ -10,28 +10,24 @@ import {
 } from 'util';
 
 import {
-  Parser
-} from './base';
+  JsonParser
+} from './json';
 
 import {
-  IDefinition, INamedWidget
-} from '../core';
-
-import {
-  MSet
-} from '../setMethods';
+  IDefinition
+} from './formatTypes';
 
 const exec = promisify(execSync);
 
 // Path to python implementation of the parser
-let PYTHON_HELPER = path.resolve(__dirname, 'python_parser.py');
+const PYTHON_HELPER = path.resolve(__dirname, 'python_parser.py');
 
 
 /**
  * Parser for generating widgets from Widget definitions in python.
  */
 export
-class PythonParser extends Parser {
+class PythonParser extends JsonParser {
 
   start(): Promise<void> {
     // This calls out to an implementation in python, that pipes back JSON
@@ -39,23 +35,7 @@ class PythonParser extends Parser {
     const cmd = `python "${PYTHON_HELPER}" "${this.input}"`;
     return exec(cmd, {windowsHide: true} as any).then(({stdout, stderr}) => {
       const data = JSON.parse(stdout as any as string) as IDefinition;
-      if (data.widgets === undefined) {
-        throw new Error('Missing "widgets" key in definition file');
-      }
-      this._names = new MSet(Object.keys(data.widgets));
-      for (let name of Object.keys(data.widgets)) {
-        let namedDef: INamedWidget = {
-          ...data.widgets[name],
-          name: name,
-        };
-        this._newWidget.emit(namedDef);
-      }
+      return this.processDefinition(data);
     });
   }
-
-  get widgetNames(): MSet<string> {
-    return this._names;
-  }
-
-  protected _names: MSet<string>;
 }

@@ -1,6 +1,6 @@
 
 import {
-  AttributeDef, isUnionAttribute
+  Attributes
 } from '../../core';
 
 
@@ -14,12 +14,12 @@ function formatValue(value: any): string {
  * @param data The attribute whose default value to use
  */
 export
-function getDefaultValue(data: AttributeDef): string {
+function getDefaultValue(data: Attributes.Attribute): string {
   if (data === null || data === undefined ||
       typeof data === 'number' || typeof data === 'boolean' ||
       typeof data === 'string') {
     return formatValue(data);
-  } else if (isUnionAttribute(data)) {
+  } else if (Attributes.isUnion(data)) {
     return getDefaultValue(data.oneOf[0]);
   }
   // JSON object

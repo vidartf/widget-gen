@@ -4,7 +4,7 @@ import {
 } from '../parsers';
 
 import {
-  INamedWidget
+  IWidget
 } from '../core';
 
 import * as fs from 'fs-extra';
@@ -40,7 +40,6 @@ abstract class Writer {
   constructor(output: string) {
     this.output = output;
     this.outputMultiple = fs.existsSync(output) && fs.statSync(output).isDirectory();
-    this.firstWidget = true;
   }
 
   /**
@@ -51,10 +50,10 @@ abstract class Writer {
    *
    * @abstract
    * @param {Parser} sender The parser producing the widget definition.
-   * @param {INamedWidget} widget The widget definition
+   * @param {IWidget} widget The widget definition
    * @memberof Writer
    */
-  abstract onWidget(sender: Parser, widget: INamedWidget): void;
+  abstract onWidget(sender: Parser, widget: IWidget): void;
 
   /**
    * Slot/hook to be called when all widgets have been processed.
@@ -82,6 +81,6 @@ abstract class Writer {
    * widget is being processed. Sub-classes should set this to false
    * after the first time onWidget is called.
    */
-  protected firstWidget: boolean;
+  protected firstWidget: boolean = true;
 }
 

@@ -4,7 +4,7 @@ import {
 } from '@phosphor/signaling';
 
 import {
-  INamedWidget, getWidgetRefs
+  IWidget, getWidgetRefs, Attributes
 } from '../core';
 
 import {
@@ -58,11 +58,10 @@ abstract class Parser {
    * be parser by the parser. It should be valid to call before the
    * first time a newWidget signal is emitted.
    *
-   * @param {INamedWidget} data The widget definition to inspect
+   * @param {IWidget} data The widget definition to inspect
    * @returns {MSet<string>} A set of widget names referenced
    */
-  resolveInternalRefs(data: INamedWidget): MSet<string> {
-    let properties = data.properties;
+  resolveInternalRefs(properties: Attributes.Properties | undefined): MSet<string> {
     if (!properties) {
       return new MSet();
     }
@@ -78,9 +77,9 @@ abstract class Parser {
    * Signal emitted by parser when it finds a new widget definition.
    *
    * @readonly
-   * @type {ISignal<this, INamedWidget>}
+   * @type {ISignal<this, IWidget>}
    */
-  get newWidget(): ISignal<this, INamedWidget> {
+  get newWidget(): ISignal<this, IWidget> {
     return this._newWidget;
   }
 
@@ -95,6 +94,6 @@ abstract class Parser {
   abstract readonly widgetNames: MSet<string>;
 
 
-  protected _newWidget = new Signal<this, INamedWidget>(this);
+  protected _newWidget = new Signal<this, IWidget>(this);
 }
 

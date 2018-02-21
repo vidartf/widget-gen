@@ -13,7 +13,7 @@ import {
 } from '../../parsers';
 
 import {
-  INamedWidget, isWidgetRef, isDataUnion, isNDArray
+  IWidget, Attributes
 } from '../../core';
 
 import {
@@ -60,7 +60,7 @@ class JSES5Writer extends Writer {
   /**
    * Process the widget definition
    */
-  onWidget(sender: Parser, data: INamedWidget): void {
+  onWidget(sender: Parser, data: IWidget): void {
     let lines: string[] = [];
     let {name, inherits, properties} = data;
 
@@ -95,11 +95,11 @@ class JSES5Writer extends Writer {
       for (let key of Object.keys(properties)) {
         lines.push(
           `${INDENT}${INDENT}${INDENT}${key}: ${getDefaultValue(properties[key])},`);
-          if (isDataUnion(properties[key])) {
+          if (Attributes.isDataUnion(properties[key])) {
             serializers[key] = 'data_union_serialization';
-          } else if (isNDArray(properties[key])) {
+          } else if (Attributes.isNDArray(properties[key])) {
             serializers[key] = 'array_serialization';
-          } else if (isWidgetRef(properties[key])) {
+          } else if (Attributes.isWidgetRef(properties[key])) {
           serializers[key] = '{ deserialize: widgets.unpack_models }';
         }
       }

@@ -7,7 +7,11 @@
         "model_module_name": "test-widget",
         "view_module_name": "test-widget",
         "model_module_version": "1.0.0",
-        "model_view_version": null
+        "model_view_version": {
+          "type": "string",
+          "default": null,
+          "allowNull": true
+        }
       }
     },
 

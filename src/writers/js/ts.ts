@@ -13,7 +13,7 @@ import {
 } from '../../parsers';
 
 import {
-  INamedWidget
+  IWidget
 } from '../../core';
 
 
@@ -49,7 +49,7 @@ class TSWriter extends JSES6Writer {
   /**
    * Process the widget definition
    */
-  onWidget(sender: Parser, data: INamedWidget): void {
+  onWidget(sender: Parser, data: IWidget): void {
     const lines = this.genLines(sender, data, HEADER);
     let {name} = data;
 
