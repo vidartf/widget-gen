@@ -1,6 +1,6 @@
 {
   "name": "widget-gen",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A node package for generating jupyter widget definitions from a JSON schema",
   "main": "src/index.ts",
   "bin": {
