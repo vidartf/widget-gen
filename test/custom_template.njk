@@ -1,0 +1,18 @@
+{% extends 'ts.njk' %}
+
+{% block globalimports %}
+{{ super() }}
+
+import {
+  bob
+} from 'bob-source';
+{% endblock %}
+
+{% block widgetbody %}
+  initialize(attributes: any, options: any) {
+    super.initialize(...arguments);
+    this.foo = 42;
+  }
+
+{{ super() }}
+{% endblock %}

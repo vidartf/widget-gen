@@ -29,7 +29,7 @@ describe('test1', () => {
       let outdir = null;
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
-        return run(fname, ['python'], outdir);
+        return run(fname, ['python'], {output: outdir});
       }).then(() => {
         return fs.readdir(outdir);
       }).then((dirFiles) => {
@@ -68,7 +68,7 @@ describe('test1', () => {
       let outdir = null;
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
-        return run(fname, ['javascript'], outdir);
+        return run(fname, ['javascript'], {output: outdir});
       }).then(() => {
         return fs.readdir(outdir);
       }).then((dirFiles) => {
@@ -105,7 +105,7 @@ describe('test1', () => {
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
         outfile = path.join(outdir, 'widgets.js');
-        return run(fname, ['javascript'], outfile);
+        return run(fname, ['javascript'], {output: outfile});
       }).then(() => {
         return fs.readdir(outdir);
       }).then((dirFiles) => {
@@ -153,7 +153,7 @@ describe('test1', () => {
       let outdir = null;
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
-        return run(fname, ['ts'], outdir);
+        return run(fname, ['ts'], {output: outdir});
       }).then(() => {
         return fs.readdir(outdir);
       }).then((dirFiles) => {
@@ -190,7 +190,7 @@ describe('test1', () => {
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
         outfile = path.join(outdir, 'widgets.ts');
-        return run(fname, ['ts'], outfile);
+        return run(fname, ['ts'], {output: outfile});
       }).then(() => {
         return fs.readdir(outdir);
       }).then((dirFiles) => {

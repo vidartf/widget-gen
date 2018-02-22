@@ -29,7 +29,7 @@ describe('test2', () => {
       let outdir = null;
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
-        return run(fname, ['python'], outdir);
+        return run(fname, ['python'], {output: outdir});
       }).then(() => {
         return fs.readdir(outdir);
       }).then((dirFiles) => {
@@ -63,7 +63,7 @@ describe('test2', () => {
       let outdir = null;
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
-        return run(fname, ['javascript'], outdir);
+        return run(fname, ['javascript'], {output: outdir});
       }).then(() => {
         return fs.readdir(outdir);
       }).then((dirFiles) => {
@@ -95,7 +95,7 @@ describe('test2', () => {
       return mkdtemp('widget-gen').then((d) => {
         outdir = d;
         outfile = path.join(outdir, 'widgets.js');
-        return run(fname, ['javascript'], outfile);
+        return run(fname, ['javascript'], {output: outfile});
       }).then(() => {
         return fs.readdir(outdir);
       }).then((dirFiles) => {
@@ -105,7 +105,7 @@ describe('test2', () => {
               "widgets.js",
             ]);
             const content = fs.readFileSync(outfile, {encoding: 'utf-8'});
-            const pattern = /\nvar (\w(\w|[_0-9])*)Model = (\w(\w|[_0-9])*)Model.extend\({\n/g;
+            const pattern = /^var (\w(\w|[_0-9])*)Model = (\w(\w|[_0-9])*)Model.extend\({$/gm;
             const names = [];
             let match;
             while (match = pattern.exec(content)) {
