@@ -1,13 +1,14 @@
 {
   "name": "widget-gen",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A node package for generating jupyter widget definitions from a JSON schema",
   "main": "src/index.ts",
   "bin": {
     "widgetgen": "./main.js"
   },
   "directories": {
-    "test": "tests"
+    "test": "test",
+    "lib": "lib"
   },
   "scripts": {
     "test": "mocha --timeout 10000",
