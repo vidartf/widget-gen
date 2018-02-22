@@ -1,6 +1,6 @@
+{% extends "js-es6.njk" %}
 
-
-
+{% block globalimports %}
 import {
   WidgetModel, DOMWidgetModel,
   WidgetView, DOMWidgetView,
@@ -10,6 +10,10 @@ import {
 import {
   data_union_serialization, array_serialization
 } from 'jupyter-dataserializers';
+{% endblock %}
+
+{% block imports %}
+{{ super() }}
 
 
 /**
@@ -23,34 +27,24 @@ export interface ISerializers {
       serialize?: (value?: any, widget?: WidgetModel) => any;
   };
 }
-{{#if outputMultiple}}
-
-{{#each localDependencies as |ref|}}
-import { {{{ ref }}}Model } from './{{{ ref }}}';
-{{/each}}
-{{/if}}
-{{#each widgets as |widget|}}
+{% endblock %}
 
 
-export
-class {{{ widget.name }}}Model extends {{{ widget.inherits.[0] }}}Model {
-
+{% block widgetbody %}
   defaults() {
     return {...super.defaults(), ... {
-      {{#if widget.properties}}
-      {{#each widget.properties as |prop propName|}}
-      {{{ propName }}}: {{{ prop.default }}},
-      {{/each}}
-      {{/if}}
+      {% if widget.properties %}
+      {% for propName, prop in widget.properties %}
+      {{ propName }}: {{ prop.default }},
+      {% endfor %}
+      {% endif %}
     }};
   }
 
   static serializers = {
-    ...{{{ widget.inherits.[0] }}}Model.serializers,
-    {{#each widget.serializers as |serializer key|}}
-    {{{ key }}}: {{{ serializer }}},
-    {{/each}}
+    ...{{ widget.inherits[0] }}Model.serializers,
+    {% for key, serializer in widget.serializers %}
+    {{ key }}: {{ serializer }},
+    {% endfor %}
   }
-
-}
-{{/each}}
+{% endblock %}

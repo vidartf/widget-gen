@@ -1,0 +1,65 @@
+{% block header %}
+{% endblock %}
+{% block imports %}
+{% block globalimports %}
+var _ = require('underscore');
+var widgets = require('@jupyter-widgets/base');
+var WidgetModel = widgets.WidgetModel;
+var DOMWidgetModel = widgets.DOMWidgetModel;
+var WidgetView = widgets.WidgetView;
+var DOMWidgetView = widgets.DOMWidgetView;
+
+var dataserializers = require('jupyter-dataserializers');
+var data_union_serialization = dataserializers.data_union_serialization;
+var array_serialization = dataserializers.array_serialization;
+{% endblock %}
+{% block localimports %}
+{% if outputMultiple %}
+
+{% for ref in localDependencies %}
+var {{ ref }}Model = require('./{{ ref }}').{{ ref }}Model;
+{% endfor %}
+{% endif %}
+{% endblock %}
+{% endblock %}
+{% block widgets %}
+{% for widget in widgets %}
+{% block widget %}
+
+
+var {{ widget.name }}Model = {{ widget.inherits[0] }}Model.extend({
+
+  defaults: function() {
+    return _.extend({{ widget.inherits[0] }}.prototype.defaults, {
+      {% if widget.properties %}
+      {% for propName, prop in widget.properties %}
+      {{ propName }}: {{ prop.default }},
+      {% endfor %}
+      {% endif %}
+    });
+  },
+
+}, {
+
+  serializers: _.extend({},
+    {{ widget.inherits[0] }}Model.serializers,
+    {
+      {% for key, serializer in widget.serializers %}
+      {{ key }}: {{ serializer }},
+      {% endfor %}
+    },
+  ),
+
+});
+{% endblock %}
+{% endfor %}
+{% endblock %}
+
+
+{% block exports %}
+module.exports = {
+{% for widget in widgets %}
+  {{ widget.name }}Model: {{ widget.name }}Model,
+{% endfor %}
+}
+{% endblock %}
