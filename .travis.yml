@@ -12,6 +12,7 @@ cache:
     - node_modules # NPM packages
     - $HOME/.npm
 install:
+  - pip install ipywidgets
   - nvm install '$NODE_VER'
   - npm install
 script:
