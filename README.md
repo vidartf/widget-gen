@@ -43,3 +43,10 @@ npm install [-g] widget-gen
     -o, --outputdir [outputdir]  The output directory
     -h, --help                   output usage information
 ```
+
+
+## Extending language support
+
+To add support for other output languages, you need to add another Writer class. You can either
+do this by inherting the base `Writer` class, having full control of the process, or you can
+inherit the `TemplateWriter` class that will use [Nunjucks templates](https://mozilla.github.io/nunjucks/templating.html) for creating output.
