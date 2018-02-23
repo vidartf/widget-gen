@@ -30,6 +30,8 @@ ENV/
 # Output
 lib
 manual
+coverage
+.nyc_output
 
 
 # Python files

@@ -11,7 +11,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "mocha --timeout 10000",
+    "test": "mocha",
+    "test:cov": "nyc mocha",
     "build": "tsc && node ./scripts/copy-files.js",
     "start": "node main.js",
     "manual": "npm run build && node main.js -o manual ./test/definitions/test2.py python js ts",
@@ -49,7 +50,21 @@
     "chai": "^4.1.2",
     "json-validation": "^1.0.4",
     "mocha": "^5.0.0",
+    "nyc": "^11.4.1",
     "rimraf": "^2.6.2",
     "typescript": "~2.7.2"
+  },
+  "nyc": {
+    "include": [
+      "lib/**/*.js",
+      "lib/**/*.jsx"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov"
+    ],
+    "sourceMap": true,
+    "instrument": true
   }
 }

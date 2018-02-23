@@ -29,6 +29,8 @@ ENV/
 
 # Tets output
 manual
+coverage
+.nyc_output
 
 
 # Python files
