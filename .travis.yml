@@ -4,8 +4,7 @@ python:
 env:
   matrix:
     - NODE_VER=latest
-    - NODE_VER=lts
-    - GROUP=node
+    - NODE_VER=lts/*
 sudo: false
 cache:
   pip: true
@@ -13,6 +12,7 @@ cache:
     - node_modules # NPM packages
     - $HOME/.npm
 install:
+  - nvm install '$NODE_VER'
   - npm install
 script:
   - npm run test:cov
