@@ -3,7 +3,7 @@ python:
   - 3.6
 env:
   matrix:
-    - NODE_VER=latest
+    - NODE_VER=node
     - NODE_VER=lts/*
 sudo: false
 cache:
@@ -12,7 +12,7 @@ cache:
     - node_modules # NPM packages
     - $HOME/.npm
 install:
-  - pip install ipywidgets
+  - pip install ipywidgets ipydatawidgets
   - nvm install "$NODE_VER"
   - npm install
 script:
