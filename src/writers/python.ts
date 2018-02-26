@@ -5,115 +5,64 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import {
-  Writer
-} from './base';
+  TemplateWriter, TemplateState
+} from './template';
 
 import {
-  Parser
-} from '../parsers';
-
-import {
-  IWidget, Attributes, hasWidgetRef,
+  Attributes, hasWidgetRef,
 } from '../core';
 
-
-const HEADER = `
-from traitlets import (
-    Unicode, Enum, Instance, Union, Float, Int, List, Tuple, Dict,
-    Undefined, Bool, Any
-)
-from ipywidgets import Widget, DOMWidget
-from ipydatawidgets import (
-    NDArray, DataUnion, shape_constraints, array_serialization,
-    data_union_serialization
-)
-`;
 
 const INDENT = '    ';
 
 
 export
-class PythonWriter extends Writer {
+class PythonWriter extends TemplateWriter {
   /**
    *
    */
-  constructor(output: string) {
-    super(output);
-    if (!this.outputMultiple) {
-      // Clear the file
-      fs.writeFileSync(this.output, '');
-    }
+  constructor(output: string, options: Partial<TemplateWriter.IOptions> = {}) {
+    super(output, {
+      fileExt: 'py',
+      template: path.resolve(__dirname, '../../templates/python.njk'),
+      ...options,
+    });
   }
 
-  onWidget(sender: Parser, data: IWidget): void {
-    let lines: string[] = [];
-    let {name, inherits, properties} = data;
-
-    if (this.outputMultiple || this.firstWidget) {
-      this.firstWidget = false;
-      lines.push(...HEADER.split('\n'));
-    }
-    if (this.outputMultiple) {
-      let refs = sender.resolveInternalRefs(data.properties);
-      if (data.inherits) {
-        let localSuper = sender.widgetNames.intersection(data.inherits);
-        refs = refs.union(localSuper);
-      }
-      console.debug(`${name} depends on: ${[...refs].join(', ')}`);
-      refs.forEach((ref) => {
-        lines.push(`from .${ref} import ${ref}`)
-      });
-    }
-
-    lines.push(
-      '', '',  // add some empty lines
-      `class ${name}(${(inherits || ['Widget']).join(', ')}):`,
-      '',
-    )
-    if (properties) {
-      for (let key of Object.keys(properties)) {
-        let traitDef = properties[key];
-        let start = `${INDENT}${key} = `;
-        let trait = makeTrait(traitDef);
-        lines.push(...(start + trait).split('\n'));
-        lines.push('')  // add empty lines between traits
-      }
-    } else {
-      lines.push(`${INDENT}pass`);
-    }
-    lines.push('');  // add an empty line at end
-
-    if (this.outputMultiple) {
-      lines.push(...makeAll([name]));
-      let fname = path.join(this.output, `${name}.py`);
-      this.modules.push(name);
-      fs.writeFileSync(fname, lines.join('\n'));
-    } else {
-      lines.push(...makeAll(this.modules));
-      fs.appendFileSync(this.output, lines.join('\n'));
-    }
+  transformState(data: TemplateState): TemplateState {
+    data = super.transformState(data);
+    data.widgets = data.widgets.map((widget) => {
+      let {properties} = widget;
+      return {
+        ...widget,
+        properties: properties ? Object.keys(properties).reduce((res, key) => {
+          let attr = properties![key];
+          res[key] = {
+            ...attr,
+            traitDef: makeTrait(attr),
+          }
+          return res;
+        }, {} as TemplateState) : properties,
+      };
+    });
+    return data;
   }
 
   finalize(): Promise<void> {
-    if (this.outputMultiple) {
-      // Write init file for directory output
-      let fname = path.join(this.output, `__init__.py`);
-      let lines = this.modules.map((name) => {
-        return `from .${name} import ${name}`;
-      });
-      lines.push('');  // add an empty line at end
-      return fs.writeFile(fname, lines.join('\n'));
-    }
-    return Promise.resolve();
+    return super.finalize().then(() =>{
+      if (this.outputMultiple) {
+        // Write init file for directory output
+        let fname = path.join(this.output, `__init__.py`);
+        let lines = this.modules.map((name) => {
+          return `from .${name} import ${name}`;
+        });
+        lines.push('');  // add an empty line at end
+        return fs.writeFile(fname, lines.join('\n'));
+      }
+    });
   }
-
-  modules: string[] = [];
 }
 
-
-function makeAll(names: string[]) {
-  return [`__all__ = [${names.map(name => `'${name}'`).join(', ')}]`, ''];
-}
 
 
 function convertValue(value: any): string {

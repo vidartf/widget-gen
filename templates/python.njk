@@ -1,0 +1,50 @@
+{% block header %}
+{% endblock %}
+{% block imports %}
+{% block globalimports %}
+from traitlets import (
+    Unicode, Enum, Instance, Union, Float, Int, List, Tuple, Dict,
+    Undefined, Bool, Any
+)
+from ipywidgets import Widget, DOMWidget
+from ipydatawidgets import (
+    NDArray, DataUnion, shape_constraints, array_serialization,
+    data_union_serialization
+)
+{% endblock %}
+{% block localimports %}
+{% if outputMultiple %}
+
+{% for ref in widgets[0].localDependencies %}
+from .{{ ref }} import {{ ref }}
+{% endfor %}
+{% endif %}
+{% endblock %}
+{% endblock %}
+{% block widgets %}
+{% for widget in widgets %}
+{% block widget %}
+
+
+class {{ widget.name }}({{ widget.inherits | join(", ") }}):
+
+{% block widgetbody %}
+    {% if widget.properties %}
+    {% for propName, prop in widget.properties %}
+    {{ propName }} = {{ prop.traitDef }}
+
+    {% endfor %}
+    {% else %}
+    pass
+    {% endif %}
+{% endblock %}
+
+
+{% endblock %}
+{% endfor %}
+{% endblock %}
+{% if outputMultiple %}
+__all__ = ['{{ widgets[0].name }}']
+{% else %}
+__all__ = ['{{ modules | join("', '") }}']
+{% endif %}
