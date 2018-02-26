@@ -1,5 +1,11 @@
 # widget-gen
 
+
+[![Npm version](https://img.shields.io/npm/v/widget-gen.svg)](https://www.npmjs.com/package/widget-gen)
+[![Travis build status](https://travis-ci.org/vidartf/widget-gen.svg?branch=master)](https://travis-ci.org/vidartf/widget-gen)
+[![codecov](https://codecov.io/gh/vidartf/widget-gen/branch/master/graph/badge.svg)](https://codecov.io/gh/vidartf/widget-gen)
+
+
 This is a utility library for auto-generating jupyter widget definitions
 based on the synchronization state. Any bussiness logic will have to be
 added on top, but this utility can help with:
