@@ -41,12 +41,13 @@ npm install [-g] widget-gen
 > widgetgen --help
   Usage: main [options] <file> [languages...]
 
-
   Options:
 
     -V, --version                output the version number
     -p, --parser [parser]        The name of the parser to use, either "json" or "python".
-    -o, --outputdir [outputdir]  The output directory
+    -o, --outputdir [outputdir]  The output directory.
+    -t, --template [template]    a template file to use.
+    -e, --extension [extension]  The file extension to use for the output.
     -h, --help                   output usage information
 ```
 
