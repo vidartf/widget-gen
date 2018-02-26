@@ -28,6 +28,7 @@ class BaseJSWriter extends TemplateWriter {
   }
 
   transformState(data: TemplateState): TemplateState {
+    data = super.transformState(data);
     data.serializers = [];
     data.widgets = data.widgets.map((widget) => {
       let {inherits, properties} = widget;

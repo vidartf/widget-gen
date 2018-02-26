@@ -72,6 +72,7 @@ class TemplateWriter extends Writer {
   transformState(data: TemplateState): TemplateState {
     return {
       ...data,
+      modules: this.modules,
       outputMultiple: this.outputMultiple,
     };
   }

@@ -16,7 +16,7 @@ var array_serialization = dataserializers.array_serialization;
 {% block localimports %}
 {% if outputMultiple %}
 
-{% for ref in localDependencies %}
+{% for ref in widgets[0].localDependencies %}
 var {{ ref }}Model = require('./{{ ref }}').{{ ref }}Model;
 {% endfor %}
 {% endif %}

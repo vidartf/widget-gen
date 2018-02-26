@@ -15,7 +15,7 @@ import {
 {% block localimports %}
 {% if outputMultiple %}
 
-{% for ref in localDependencies %}
+{% for ref in widgets[0].localDependencies %}
 import { {{ ref }}Model } from './{{ ref }}';
 {% endfor %}
 {% endif %}
