@@ -6,8 +6,8 @@ import {
 } from './js-es6';
 
 import {
-  TemplateWriter
-} from '../template';
+  BaseJSWriter
+} from './base';
 
 
 
@@ -18,12 +18,11 @@ import {
  */
 export
 class TSWriter extends JSES6Writer {
-  constructor(output: string, options: Partial<TemplateWriter.IOptions> = {}) {
-    options = {
+  constructor(output: string, options: Partial<BaseJSWriter.IOptions> = {}) {
+    super(output, {
       template: path.resolve(__dirname, '../../../templates/ts.njk'),
       fileExt: 'ts',
       ...options,
-    };
-    super(output, options);
+    });
   }
 }

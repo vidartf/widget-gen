@@ -20,7 +20,7 @@ interface IWriterConstructor {
    *
    * @param output The output path to write to. Either an existing directory, or a file path
    */
-  new (output: string): Writer;
+  new (output: string, options?: Writer.IOptions): Writer;
 }
 
 
@@ -37,7 +37,7 @@ abstract class Writer {
    *
    * @param output {string} The output path to write to. Either an existing directory, or a file path
    */
-  constructor(output: string) {
+  constructor(output: string, options?: Writer.IOptions) {
     this.output = output;
     this.outputMultiple = fs.existsSync(output) && fs.statSync(output).isDirectory();
   }
@@ -84,3 +84,11 @@ abstract class Writer {
   protected firstWidget: boolean = true;
 }
 
+
+export
+namespace Writer {
+  export
+  interface IOptions {
+    [key: string]: string;
+  }
+}

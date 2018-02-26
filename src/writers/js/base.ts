@@ -19,12 +19,11 @@ import {
  */
 export
 class BaseJSWriter extends TemplateWriter {
-  constructor(output: string, options: Partial<TemplateWriter.IOptions> = {}) {
-    options = {
+  constructor(output: string, options: BaseJSWriter.IOptions) {
+    super(output, {
       fileExt: 'js',
       ...options,
-    };
-    super(output, options);
+    });
   }
 
   transformState(data: TemplateState): TemplateState {
@@ -65,5 +64,15 @@ class BaseJSWriter extends TemplateWriter {
 
   filenameForIndex(): string {
     return path.join(this.output, `index.${this.fileExt}`);
+  }
+}
+
+
+export
+namespace BaseJSWriter {
+
+  export
+  interface IOptions extends Partial<TemplateWriter.IOptions> {
+    template: string;
   }
 }

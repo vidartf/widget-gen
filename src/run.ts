@@ -9,10 +9,6 @@ import {
   writers, Writer
 } from './writers';
 
-import {
-  TemplateWriter
-} from './writers/template';
-
 
 function makeParser(filename: string, parserName?: string): Parser {
   if (parserName !== undefined) {
@@ -49,17 +45,16 @@ function run(filename: string, languages: string[], options: Partial<IOptions>) 
       throw new Error(`Unknown language: ${language}. ` +
         `Valid languages: ${Object.keys(writers)}.`);
     }
-    let writer = new writerCtor(output);
+    let options: Writer.IOptions = {};
+    if (templateFile) {
+      options.template = templateFile;
+    }
+    if (fileExt) {
+      options.fileExt = fileExt;
+    }
+    let writer = new writerCtor(output, options);
     instances.push(writer);
     parser.newWidget.connect(writer.onWidget, writer);
-    if (writer instanceof TemplateWriter) {
-      if (templateFile) {
-        writer.templateFile = templateFile;
-      }
-      if (fileExt) {
-        writer.fileExt = fileExt;
-      }
-    }
   }
   return parser.start().then(() => {
     return Promise.all(instances.map((writer) => {

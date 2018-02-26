@@ -5,10 +5,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import {
-  TemplateWriter
-} from '../template';
-
-import {
   BaseJSWriter
 } from './base';
 
@@ -18,12 +14,11 @@ import {
  */
 export
 class JSES6Writer extends BaseJSWriter {
-  constructor(output: string, options: Partial<TemplateWriter.IOptions> = {}) {
-    options = {
+  constructor(output: string, options: Partial<BaseJSWriter.IOptions> = {}) {
+    super(output, {
       template: path.resolve(__dirname, '../../../templates/js-es6.njk'),
       ...options,
-    };
-    super(output, options);
+    });
   }
 
   /**

@@ -5,10 +5,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import {
-  TemplateWriter
-} from '../template';
-
-import {
   BaseJSWriter
 } from './base';
 
@@ -25,12 +21,11 @@ const INDENT = '  ';
 export
 class JSES5Writer extends BaseJSWriter {
 
-  constructor(output: string, options: Partial<TemplateWriter.IOptions> = {}) {
-    options = {
+  constructor(output: string, options: Partial<BaseJSWriter.IOptions> = {}) {
+    super(output, {
       template: path.resolve(__dirname, '../../../templates/js-es5.njk'),
       ...options,
-    };
-    super(output, options);
+    });
   }
 
   /**
