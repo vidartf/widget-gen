@@ -5,7 +5,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import {
-  compile, Template, configure
+  compile, Template, configure, Environment
 } from 'nunjucks';
 
 import {
@@ -153,7 +153,7 @@ class TemplateWriter extends Writer {
       if (!this.templateFile) {
         throw new Error('No template file set!');
       }
-      this._template = TemplateWriter.compileTemplate(this.templateFile);
+      this._template = TemplateWriter.compileTemplate(this.templateFile, this.env);
     }
     return this._template;
   }
@@ -190,6 +190,14 @@ class TemplateWriter extends Writer {
   protected _template?: Template;
 
   /**
+   * The envionment config for the template engine.
+   * 
+   * @protected
+   * @type {Environment}
+   */
+  protected env: Environment = NUNJUCKS_ENV;
+
+  /**
    * If writing several files, this will contain the widget names
    * that define each module.
    */
@@ -216,9 +224,9 @@ namespace TemplateWriter {
    * @param templatePath The path to the template file.
    */
   export
-  function compileTemplate(templatePath: string) {
+  function compileTemplate(templatePath: string, env: Environment) {
     return compile(fs.readFileSync(templatePath, {
       encoding: 'utf-8'
-    }), NUNJUCKS_ENV);
+    }), env);
   }
 }
