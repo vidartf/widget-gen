@@ -8,25 +8,9 @@ import {
 } from '@jupyter-widgets/base';
 
 import {
-  data_union_serialization, array_serialization
+  data_union_serialization, array_serialization,
+  ISerializers
 } from 'jupyter-dataserializers';
-{% endblock %}
-
-{% block imports %}
-{{ super() }}
-
-
-/**
- * Type declaration for general widget serializers.
- *
- * Declared in lieu of proper interface in jupyter-widgets.
- */
-export interface ISerializers {
-  [key: string]: {
-      deserialize?: (value?: any, manager?: ManagerBase<any>) => any;
-      serialize?: (value?: any, widget?: WidgetModel) => any;
-  };
-}
 {% endblock %}
 
 
@@ -41,7 +25,7 @@ export interface ISerializers {
     }};
   }
 
-  static serializers = {
+  static serializers: ISerializers = {
     ...{{ widget.inherits[0] }}Model.serializers,
     {% for key, serializer in widget.serializers %}
     {{ key }}: {{ serializer }},
