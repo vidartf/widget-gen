@@ -28,21 +28,21 @@ class BaseJSWriter extends TemplateWriter {
 
   transformState(data: TemplateState): TemplateState {
     data = super.transformState(data);
-    data.serializers = [];
     data.widgets = data.widgets.map((widget) => {
       let {inherits, properties} = widget;
       if (inherits.length > 1) {
         console.warn(`Cannot use multiple inheritance for ${name} with JS.` +
           `Dropping ancestors: ${inherits.slice(1)}`);
       }
+      const serializers: {[key: string]: string} = {};
       if (properties) {
         for (let key of Object.keys(properties)) {
           if (Attributes.isDataUnion(properties[key])) {
-            data.serializers[key] = 'data_union_serialization';
+            serializers[key] = 'data_union_serialization';
           } else if (Attributes.isNDArray(properties[key])) {
-            data.serializers[key] = 'array_serialization';
+            serializers[key] = 'array_serialization';
           } else if (hasWidgetRef(properties[key])) {
-            data.serializers[key] = '{ deserialize: unpack_models }';
+            serializers[key] = '{ deserialize: unpack_models }';
           }
         }
       }
@@ -57,6 +57,7 @@ class BaseJSWriter extends TemplateWriter {
           return res;
         }, {} as TemplateState) : properties,
         inherits: inherits.slice(0, 1),
+        serializers,
       };
     });
     return data;
