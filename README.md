@@ -16,17 +16,17 @@ added on top, but this utility can help with:
 The last point is best accomplished by using the auto-generated definitions
 as base classes for the classes that actually add the business logic.
 
-Currently it speaks the following languages:
+It can read (parse) widget definitions from:
+
+- A custom JSON schema-like format
+- Python widgets based on ipywidgets
+
+And then output corresponding code in the following languages:
 
 - Python
 - ES5 Javascript
 - ES6 Javascript
 - Typescript
-
-It can read (parse) the widget definitions from:
-
-- A custom JSON schema-like format
-- Python widgets based on ipywidgets
 
 
 ## Installation
