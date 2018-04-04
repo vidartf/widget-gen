@@ -1,0 +1,48 @@
+package //TODO package name
+{% block widgets %}
+{% for widget in widgets %}
+{% block widget %}
+
+public class {{ widget.name }} extends {{ widget.inherits | join(", ") }} {
+
+
+
+  {% for propName, prop in widget.properties %}
+  {% if propName.startsWith("_") %}
+  public static final String {{propName.slice(1)|upper}}_VALUE = "{{prop.default}}";
+  {% else %}
+  public static final String {{propName|uppercase}} = "{{propName}}";
+  {% endif %}
+  {% endfor %}
+
+  {% for propName, prop in widget.properties %}
+  {% if not propName.startsWith("_") %}
+  private {% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} {{propName|camelcase|fromlower}} = {{prop.traitDef}};
+  {% endif %}
+  {% endfor %}
+
+  public {{widget.name}}() {
+    super();
+    openComm();
+  }
+
+{% for propName, prop in widget.properties %}
+  {% if not propName.startsWith("_") %}
+  public {% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} get{{propName|camelcase}}() {
+    return {{propName|camelcase|fromlower}};
+  }
+  public void set{{propName|camelcase}}({% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} {{propName}}){
+    this.{{propName|camelcase|fromlower}} = {{propName|camelcase|fromlower}};
+    sendUpdate({{propName|uppercase}}, {{propName|camelcase|fromlower}});
+  }
+  {% else %}
+  public String get{{propName|camelcase}}Value(){
+    return {{propName.slice(1)|upper}}_VALUE;
+  }
+  {% endif %}
+
+{% endfor %}
+}
+{% endblock %}
+{% endfor %}
+{% endblock %}
