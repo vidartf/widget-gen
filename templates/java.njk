@@ -1,4 +1,3 @@
-package //TODO package name
 {% block widgets %}
 {% for widget in widgets %}
 {% block widget %}
@@ -31,7 +30,7 @@ public class {{ widget.name }} extends {{ widget.inherits | join(", ") }} {
   public {% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} get{{propName|camelcase}}() {
     return {{propName|camelcase|fromlower}};
   }
-  public void set{{propName|camelcase}}({% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} {{propName}}){
+  public void set{{propName|camelcase}}({% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} {{propName|camelcase|fromlower}}){
     this.{{propName|camelcase|fromlower}} = {{propName|camelcase|fromlower}};
     sendUpdate({{propName|uppercase}}, {{propName|camelcase|fromlower}});
   }

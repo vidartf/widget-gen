@@ -9,9 +9,6 @@ import {
 } from '../core';
 
 
-const INDENT = '    ';
-
-
 export
 class JavaWriter extends TemplateWriter {
   /**
@@ -49,10 +46,10 @@ class JavaWriter extends TemplateWriter {
                 return 'int'
             }
             case 'float': {
-                return 'float'
+                return 'double'
             }
             case 'array': {
-                return 'ArrayList'
+                return 'List'
             }
             default: {
                 return 'Object'
@@ -87,7 +84,7 @@ class JavaWriter extends TemplateWriter {
 
 
 
-function convertValue(value: any): string {
+function convertValue(value: any, valType: any): string {
   if (value === true) {
     return 'true';
   } else if (value === false) {
@@ -97,7 +94,7 @@ function convertValue(value: any): string {
   } else if (value === undefined) {
     return 'null';
   } else if (Array.isArray(value)) {
-    return `${value.map(v => convertValue(v)).join(', ')}`;
+    return `${value.map(v => convertValue(v, typeof v)).join(', ')}`;
   } else if (typeof value === 'string') {
     return `"${value.toString()}"`;
   }
@@ -118,7 +115,7 @@ function makeTrait(data: Attributes.Attribute, innerTrait=false): string {
 
   } else if (typeof data === 'string') {
 
-    traitDef = `"${convertValue(data)};"`;
+    traitDef = `"${convertValue(data, 'string')};"`;
 
   } else if (typeof data === 'number') {
 
@@ -130,22 +127,15 @@ function makeTrait(data: Attributes.Attribute, innerTrait=false): string {
 
   } else if (typeof data === 'boolean') {
 
-    traitDef = `${convertValue(data)};`
+    traitDef = `${convertValue(data, 'bool')};`
 
   } else {
-
-    let allowNoneArg = '';
-    if (data.allowNull !== undefined && data.allowNull !== false) {
-      allowNoneArg = `, allow_none=${convertValue(data.allowNull)}`;
-    }
     if (Attributes.isUnion(data)) {
-
-      const defs = data.oneOf.map((subdata) => makeTrait(subdata, true));
-      traitDef = `Union([\n${INDENT}${INDENT}${defs.join(`,\n${INDENT}${INDENT}`)}\n${INDENT}]${allowNoneArg})`;
+      traitDef = `new ArrayList<>`;
 
     } else {
 
-      let defValue = convertValue(data.default);
+      let defValue = convertValue(data.default, typeof data);
       switch (data.type) {
 
       case 'object':
@@ -172,11 +162,11 @@ function makeTrait(data: Attributes.Attribute, innerTrait=false): string {
         break;
 
       case 'ndarray':
-        traitDef = `null; //TODO`
+        traitDef = `null;`
         break;
 
       case 'dataunion':
-        traitDef = `null; //TODO`
+        traitDef = `null;`
         break;
 
       default:
