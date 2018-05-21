@@ -9,6 +9,10 @@ import {
 } from './python';
 
 import {
+  JavaWriter
+} from './java';
+
+import {
   JSES5Writer, JSES6Writer, TSWriter
 } from './js';
 
@@ -27,4 +31,5 @@ let writers: {[key: string]: IWriterConstructor| undefined} = {
   'js-es6': JSES6Writer,
   es6: JSES6Writer,
   ts: TSWriter,
+  java: JavaWriter,
 }
