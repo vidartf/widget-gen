@@ -11,7 +11,7 @@ public class {{ widget.name }} extends {{ widget.inherits | join(", ") }} {
   {% if propName.startsWith("_") %}
   public static final String {{propName.slice(1)|upper}}_VALUE = "{{prop.default}}";
   {% else %}
-  public static final String {{propName|uppercase}} = "{{propName}}";
+  public static final String {{propName|upper}} = "{{propName}}";
   {% endif %}
   {% endfor %}
 
@@ -33,7 +33,7 @@ public class {{ widget.name }} extends {{ widget.inherits | join(", ") }} {
   }
   public void set{{propName|camelcase}}({% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} {{propName|camelcase|fromlower}}){
     this.{{propName|camelcase|fromlower}} = {{propName|camelcase|fromlower}};
-    sendUpdate({{propName|uppercase}}, {{propName|camelcase|fromlower}});
+    sendUpdate({{propName|upper}}, {{propName|camelcase|fromlower}});
   }
   {% else %}
   public String get{{propName|camelcase}}Value(){

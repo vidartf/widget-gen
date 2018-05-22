@@ -21,9 +21,6 @@ class JavaWriter extends TemplateWriter {
       template: path.resolve(__dirname, '../../templates/java.njk'),
       ...options,
     });
-    this.env.addFilter('uppercase', function(str) {
-        return str.toUpperCase( )
-    });
     this.env.addFilter('camelcase', function(str) {
         var parsed_str = ""
         var splitted = str.split("_")
