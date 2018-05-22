@@ -37,22 +37,22 @@
   "dependencies": {
     "@phosphor/signaling": "^1.2.2",
     "commander": "^2.13.0",
-    "fs-extra": "^5.0.0",
+    "fs-extra": "^6.0.1",
     "nunjucks": "^3.1.0",
     "source-map-support": "^0.5.3"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.2",
-    "@types/fs-extra": "^5.0.0",
-    "@types/mocha": "^2.2.47",
-    "@types/node": "^9.4.6",
+    "@types/chai": "^4.1.3",
+    "@types/fs-extra": "^5.0.2",
+    "@types/mocha": "^5.2.0",
+    "@types/node": "^10.1.2",
     "@types/nunjucks": "^3.0.0",
     "chai": "^4.1.2",
     "json-validation": "^1.0.4",
-    "mocha": "^5.0.0",
-    "nyc": "^11.4.1",
+    "mocha": "^5.2.0",
+    "nyc": "^11.8.0",
     "rimraf": "^2.6.2",
-    "typescript": "~2.7.2"
+    "typescript": "~2.8.3"
   },
   "nyc": {
     "include": [
