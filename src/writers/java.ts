@@ -10,10 +10,13 @@ import {
 } from '../core';
 
 
+/**
+ * A writer for Java based widgets
+ */
 export
 class JavaWriter extends TemplateWriter {
   /**
-   *
+   * Create a Java writer
    */
   constructor(output: string, options: Partial<TemplateWriter.IOptions> = {}) {
     super(output, {
