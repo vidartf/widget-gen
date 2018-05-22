@@ -69,7 +69,7 @@ class JavaWriter extends TemplateWriter {
           let attr = properties![key];
           res[key] = {
             ...attr,
-            traitDef: makeTrait(attr),
+            traitDef: formatDefault(attr),
           }
           return res;
         }, {} as TemplateState) : properties,
@@ -85,7 +85,7 @@ class JavaWriter extends TemplateWriter {
 
 
 
-function convertValue(value: any, valType: any): string {
+function convertValue(value: any): string {
   if (value === true) {
     return 'true';
   } else if (value === false) {
@@ -95,7 +95,7 @@ function convertValue(value: any, valType: any): string {
   } else if (value === undefined) {
     return 'null';
   } else if (Array.isArray(value)) {
-    return `${value.map(v => convertValue(v, typeof v)).join(', ')}`;
+    return `${value.map(v => convertValue(v)).join(', ')}`;
   } else if (typeof value === 'string') {
     return `"${value.toString()}"`;
   }
@@ -103,77 +103,69 @@ function convertValue(value: any, valType: any): string {
 }
 
 
-function makeTrait(data: Attributes.Attribute, innerTrait=false): string {
-  let traitDef: string = 'Any()';
+function formatDefault(data: Attributes.Attribute, recursive=false): string {
+  let res: string = 'null';
 
-  if (data === null) {
+  if (data === null || data === undefined ||
+      typeof data === 'string' || typeof data === 'boolean' ||
+      typeof data === 'number') {
 
-    traitDef = 'null;';
-
-  } else if (data === undefined) {
-
-    traitDef = 'null;';
-
-  } else if (typeof data === 'string') {
-
-    traitDef = `"${convertValue(data, 'string')};"`;
-
-  } else if (typeof data === 'number') {
-
-    if (Number.isInteger(data)) {
-      traitDef = `${data};`;
-    } else {
-      traitDef = `${data};`;
-    }
-
-  } else if (typeof data === 'boolean') {
-
-    traitDef = `${convertValue(data, 'bool')};`
+    // Atrtibute definition is in simplified form
+    res = convertValue(data);
 
   } else {
+    // Atrtibute definition is a full specification object
     if (Attributes.isUnion(data)) {
-      traitDef = `new ArrayList<>`;
+
+      // TODO: How are union traits specified for Java?
+      res = `new ArrayList<>`;
 
     } else {
 
-      let defValue = convertValue(data.default, typeof data);
       switch (data.type) {
 
       case 'object':
-        traitDef = `null`;
+        // TODO: This should be a dict/hashmap, possibly with a default value
+        res = `null`;
         break;
 
       case 'array':
         let items = data.items;
         if (items === undefined) {
-          traitDef = `new ArrayList<>()`;
+          res = `new ArrayList<>()`;
         } else if (Array.isArray(items)) {
-          if (defValue) {
-            traitDef = (`Arrays.asList(${defValue})`);
+          if (data.default !== undefined) {
+            res = (`Arrays.asList(${convertValue(data.default)})`);
           } else {
-            traitDef = `new ArrayList<>()`;
+            res = `new ArrayList<>()`;
           }
         } else {
-          traitDef = `Arrays.asList(${makeTrait(items, true)}))`
+          res = `Arrays.asList(${formatDefault(items, true)}))`
         }
         break;
 
       case 'widgetRef':
-        traitDef = `new ${data.widgetType}()`;
+        res = `new ${data.widgetType}()`;
         break;
 
       case 'ndarray':
-        traitDef = `null;`
+        // TODO: Make a Java package for ipydatawidgets
+        res = `null`
         break;
 
       case 'dataunion':
-        traitDef = `null;`
+      // TODO: Make a Java package for ipydatawidgets
+        res = `null`
         break;
 
       default:
-        traitDef = `${defValue}`;
+        res = convertValue(data.default);
       }
     }
   }
-  return traitDef
+  // Only add terminating semi-colon if not called recursively:
+  if (!recursive) {
+    res = res + ';';
+  }
+  return res
 }
