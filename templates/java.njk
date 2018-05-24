@@ -17,7 +17,7 @@ public class {{ widget.name }} extends {{ widget.inherits | join(", ") }} {
 
   {% for propName, prop in widget.properties %}
   {% if not propName.startsWith("_") %}
-  private {% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} {{propName|camelcase|fromlower}} = {{prop.traitDef}};
+  private {% if prop.type %}{{prop.javatype}}{% else %}Object{% endif %} {{propName|camelcase|fromlower}} = {{prop.defaultValue}};
   {% endif %}
   {% endfor %}
 
@@ -28,10 +28,10 @@ public class {{ widget.name }} extends {{ widget.inherits | join(", ") }} {
 
 {% for propName, prop in widget.properties %}
   {% if not propName.startsWith("_") %}
-  public {% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} get{{propName|camelcase}}() {
+  public {% if prop.type %}{{prop.javatype}}{% else %}Object{% endif %} get{{propName|camelcase}}() {
     return {{propName|camelcase|fromlower}};
   }
-  public void set{{propName|camelcase}}({% if prop.type %}{{prop.type|javatypes}}{% else %}Object{% endif %} {{propName|camelcase|fromlower}}){
+  public void set{{propName|camelcase}}({% if prop.type %}{{prop.javatype}}{% else %}Object{% endif %} {{propName|camelcase|fromlower}}){
     this.{{propName|camelcase|fromlower}} = {{propName|camelcase|fromlower}};
     sendUpdate({{propName|upper}}, {{propName|camelcase|fromlower}});
   }

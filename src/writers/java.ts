@@ -35,28 +35,32 @@ class JavaWriter extends TemplateWriter {
     this.env.addFilter('fromlower', function(str) {
         return str.charAt(0).toLowerCase() + str.slice(1)
     });
-    this.env.addFilter('javatypes', function(str) {
-        switch(str) {
-            case 'string': {
-                return 'String'
-            }
-            case 'boolean': {
-                return 'boolean'
-            }
-            case 'int': {
-                return 'int'
-            }
-            case 'float': {
-                return 'double'
-            }
-            case 'array': {
-                return 'List'
-            }
-            default: {
-                return 'Object'
-            }
-        }
-    });
+  }
+
+  javatype(attr: Attributes.Attribute): string {
+    if (!attr) {
+      return 'Object';
+    }
+    switch(attr.type) {
+    case 'string': {
+      return 'String';
+    }
+    case 'boolean': {
+      return 'boolean';
+    }
+    case 'int': {
+      return 'int';
+    }
+    case 'float': {
+      return 'double';
+    }
+    case 'array': {
+      return 'List';
+    }
+    default: {
+      return 'Object';
+    }
+    }
   }
 
   transformState(data: TemplateState): TemplateState {
@@ -69,7 +73,8 @@ class JavaWriter extends TemplateWriter {
           let attr = properties![key];
           res[key] = {
             ...attr,
-            traitDef: formatDefault(attr),
+            javatype: this.javatype(attr),
+            defaultValue: formatDefault(attr),
           }
           return res;
         }, {} as TemplateState) : properties,
