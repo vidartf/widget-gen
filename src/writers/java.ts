@@ -89,6 +89,7 @@ class JavaWriter extends TemplateWriter {
 
   transformState(data: TemplateState): TemplateState {
     data = super.transformState(data);
+    data.package = '<placeholderPackageName>';
     data.widgets = data.widgets.map((widget) => {
       let {properties} = widget;
       return {

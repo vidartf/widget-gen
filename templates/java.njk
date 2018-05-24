@@ -1,5 +1,6 @@
 
 {% block header %}
+package {{ package }};
 {% endblock %}
 {% block imports %}
 import com.twosigma.beakerx.widget.Widget;
@@ -18,7 +19,6 @@ import java.util.Map;
 {% block widget %}
 
 public class {{ widget.name }} extends {{ widget.inherits | join(", ") }} {
-
 
 
   {% for propName, prop in widget.properties %}
