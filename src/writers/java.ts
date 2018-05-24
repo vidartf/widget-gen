@@ -37,6 +37,19 @@ class JavaWriter extends TemplateWriter {
     });
   }
 
+  /**
+   * Write out a sequence of widget definitions to disk.
+   *
+   * @param filename The filename to save to.
+   * @param widgets The widget definitions to write.
+   */
+  write(filename: string, widgets: IWidget[]): void {
+    if (widgets.length > 1 && !this.outputMultiple) {
+      throw new Error('Cannot write multiple widget definitions to one Java file!');
+    }
+    return super.write(filename, widgets);
+  }
+
   javatype(attr: Attributes.Attribute): string {
     if (!attr) {
       return 'Object';
