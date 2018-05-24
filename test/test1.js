@@ -230,5 +230,70 @@ describe('test1', () => {
 
   });
 
+  
+  describe('java', () => {
+
+    it('should generate all the files', () => {
+      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let outdir = null;
+      return mkdtemp('widget-gen').then((d) => {
+        outdir = d;
+        return run(fname, ['java'], {output: outdir});
+      }).then(() => {
+        return fs.readdir(outdir);
+      }).then((dirFiles) => {
+        return new Promise((resolve, reject) => {
+          try {
+            expect(dirFiles).to.eql([
+              "DataArray.java",
+              "DataContainer.java",
+              "DataSet.java",
+              "ImageData.java",
+              "Piece.java",
+              "UnstructuredGrid.java",
+              "VtkWidget.java",
+            ]);
+          } finally {
+            rimraf(outdir, (error) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve();
+              }
+            });
+          }
+        });
+      });
+    });
+
+
+    it('should fail when trying to write to a single file', () => {
+      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let outdir = null;
+      let outfile = null;
+      const log = [];
+      const origConsole = console.log;
+      const cleanUp = () => {
+        console.log = origConsole;
+        rimraf(outdir, () => {});
+      };
+      return mkdtemp('widget-gen').then((d) => {
+        outdir = d;
+        outfile = path.join(outdir, 'widgets.java');
+
+        console.log = (message) => { log.push(message); };
+        return run(fname, ['java'], {output: outfile});
+      }).then(() => {
+        cleanUp();
+        expect(log.length).to.equal(1);
+        expect(log[0]).is.instanceOf(Error);
+        expect(log[0].message).to.eql(
+          'Cannot write multiple widget definitions to one Java file!');
+      }, cleanUp)
+    });
+
+  });
+
+
 
 });
