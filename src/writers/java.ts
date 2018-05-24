@@ -6,7 +6,7 @@ import {
 } from './template';
 
 import {
-  Attributes,
+  Attributes, IWidget
 } from '../core';
 
 
@@ -56,6 +56,17 @@ class JavaWriter extends TemplateWriter {
     }
     case 'array': {
       return 'List';
+    }
+    case 'object': {
+      return 'Map<String, Serializable>';
+    }
+    case 'widgetRef': {
+      if (Array.isArray(attr.widgetType)) {
+        // For widget refs that can be one of multiple types,
+        // use the known common base:
+        return 'Widget';
+      }
+      return attr.widgetType;
     }
     default: {
       return 'Object';
@@ -122,16 +133,25 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
     // Atrtibute definition is a full specification object
     if (Attributes.isUnion(data)) {
 
-      // TODO: How are union traits specified for Java?
-      res = `new ArrayList<>`;
+      // Use the default from the first possible union type:
+      res = formatDefault(data.oneOf[0], true);
 
     } else {
 
       switch (data.type) {
 
       case 'object':
-        // TODO: This should be a dict/hashmap, possibly with a default value
-        res = `null`;
+        if (data.default === null || data.default === undefined) {
+          res = 'null';
+        } else {
+          // TODO: This should also get an initializer if there is a default value!
+          /*
+          {
+            put("{{ key }}", {{ value }});
+          };
+          */
+          res = `new HashMap<String, Serializable>()`;
+        }
         break;
 
       case 'array':
@@ -150,7 +170,11 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
         break;
 
       case 'widgetRef':
-        res = `new ${data.widgetType}()`;
+        if (data.default === null || data.default === undefined) {
+          res = 'null';
+        } else {
+          res = `new ${data.widgetType}()`;
+        }
         break;
 
       case 'ndarray':

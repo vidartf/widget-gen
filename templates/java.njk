@@ -1,4 +1,18 @@
 
+{% block header %}
+{% endblock %}
+{% block imports %}
+import com.twosigma.beakerx.widget.Widget;
+import com.twosigma.beakerx.widget.DOMWidget;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+{% endblock %}
+
 {% block widgets %}
 {% for widget in widgets %}
 {% block widget %}
