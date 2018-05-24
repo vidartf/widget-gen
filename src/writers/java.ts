@@ -25,15 +25,15 @@ class JavaWriter extends TemplateWriter {
       ...options,
     });
     this.env.addFilter('camelcase', function(str) {
-        var parsed_str = ""
-        var splitted = str.split("_")
-        for (let word of splitted) {
-            parsed_str += word.charAt(0).toUpperCase() + word.slice(1)
-        }
-        return parsed_str;
+      let parsed_str = '';
+      const split = str.split("_");
+      for (let word of split) {
+        parsed_str += word.charAt(0).toUpperCase() + word.slice(1);
+      }
+      return parsed_str;
     });
     this.env.addFilter('fromlower', function(str) {
-        return str.charAt(0).toLowerCase() + str.slice(1)
+      return str.charAt(0).toLowerCase() + str.slice(1);
     });
   }
 
@@ -84,7 +84,7 @@ class JavaWriter extends TemplateWriter {
   }
 
   finalize(): Promise<void> {
-    return super.finalize()
+    return super.finalize();
   }
 }
 
@@ -155,12 +155,12 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
 
       case 'ndarray':
         // TODO: Make a Java package for ipydatawidgets
-        res = `null`
+        res = `null`;
         break;
 
       case 'dataunion':
       // TODO: Make a Java package for ipydatawidgets
-        res = `null`
+        res = `null`;
         break;
 
       default:
@@ -172,5 +172,5 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
   if (!recursive) {
     res = res + ';';
   }
-  return res
+  return res;
 }
