@@ -138,14 +138,15 @@ function convertValue(value: any): string {
 }
 
 
+/**
+ * Transform the default value.
+ */
 function formatDefault(data: Attributes.Attribute, recursive=false): string {
-  let res: string = 'null';
+  let res: string;
 
-  if (data === null || data === undefined ||
-      typeof data === 'string' || typeof data === 'boolean' ||
-      typeof data === 'number') {
+  if (data === undefined ) {
 
-    // Atrtibute definition is in simplified form
+    // Attribute definition is in simplified form
     res = convertValue(data);
 
   } else {
