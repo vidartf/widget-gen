@@ -24,17 +24,8 @@ class JavaWriter extends TemplateWriter {
       template: path.resolve(__dirname, '../../templates/java.njk'),
       ...options,
     });
-    this.env.addFilter('camelcase', function(str) {
-      let parsed_str = '';
-      const split = str.split("_");
-      for (let word of split) {
-        parsed_str += word.charAt(0).toUpperCase() + word.slice(1);
-      }
-      return parsed_str;
-    });
-    this.env.addFilter('fromlower', function(str) {
-      return str.charAt(0).toLowerCase() + str.slice(1);
-    });
+    this.env.addFilter('camelcase', camelCase);
+    this.env.addFilter('fromlower', fromLower);
   }
 
   /**
@@ -113,6 +104,20 @@ class JavaWriter extends TemplateWriter {
   }
 }
 
+
+function camelCase(str: string) {
+  let parsed_str = '';
+  const split = str.split("_");
+  for (let word of split) {
+    parsed_str += word.charAt(0).toUpperCase() + word.slice(1);
+  }
+  return parsed_str;
+}
+
+
+function fromLower(str: string) {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
 
 
 function convertValue(value: any): string {
