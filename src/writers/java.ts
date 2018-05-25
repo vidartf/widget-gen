@@ -211,9 +211,5 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
       }
     }
   }
-  // Only add terminating semi-colon if not called recursively:
-  if (!recursive) {
-    res = res + ';';
-  }
   return res;
 }
