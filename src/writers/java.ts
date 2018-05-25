@@ -158,13 +158,18 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
         if (data.default === null || data.default === undefined) {
           res = 'null';
         } else {
-          // TODO: This should also get an initializer if there is a default value!
-          /*
-          {
-            put("{{ key }}", {{ value }});
-          };
-          */
-          res = `new HashMap<String, Serializable>()`;
+          const lines = [];
+          lines.push('new HashMap<String, Serializable>()')
+          // This should also get an initializer if there is a default value!
+          const keys = Object.keys(data.default);
+          if (keys.length > 0) {
+            lines.push('  {');
+            for (let key of keys) {
+              lines.push(`    put("${key}", ${formatDefault(data.default[key])})`);
+            }
+            lines.push('  }');
+          }
+          res = lines.join('\n');
         }
         break;
 
