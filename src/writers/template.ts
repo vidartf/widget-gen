@@ -130,7 +130,7 @@ class TemplateWriter extends Writer {
   /**
    * If outputting multiple widgets, this function will
    * be called to determine the filename to use for a
-   * given widget definition. The implementer is resonsible
+   * given widget definition. The implementer is responsible
    * for taking `this.output` into account.
    *
    * @param widget The widget definition that will be saved
