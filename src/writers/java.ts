@@ -91,6 +91,7 @@ class JavaWriter extends TemplateWriter {
             ...attr,
             javatype: this.javatype(attr),
             defaultValue: formatDefault(attr),
+            initializer: initializer(key, attr),
           }
           return res;
         }, {} as TemplateState) : properties,
@@ -164,18 +165,7 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
         if (data.default === null || data.default === undefined) {
           res = 'null';
         } else {
-          const lines = [];
-          lines.push('new HashMap<String, Serializable>()')
-          // This should also get an initializer if there is a default value!
-          const keys = Object.keys(data.default);
-          if (keys.length > 0) {
-            lines.push('  {');
-            for (let key of keys) {
-              lines.push(`    put("${key}", ${formatDefault(data.default[key])})`);
-            }
-            lines.push('  }');
-          }
-          res = lines.join('\n');
+          res = 'new HashMap<String, Serializable>()';
         }
         break;
 
@@ -215,6 +205,39 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
       default:
         res = convertValue(data.default);
       }
+    }
+  }
+  return res;
+}
+
+
+/**
+ * Create an initializer block, or return null if no block is needed.
+ */
+function initializer(key: string, data: Attributes.Attribute): string | null {
+  let res: string | null = null;
+
+  if (data !== undefined ) {
+
+    // Attribute definition is a full specification object
+    if (Attributes.isUnion(data)) {
+
+      // Use the default from the first possible union type:
+      res = initializer(key, data.oneOf[0]);
+
+    } else if (data.type === 'object') {
+        if (data.default !== null && data.default !== undefined) {
+          // This should also get an initializer if there is a default value!
+          const keys = Object.keys(data.default);
+          if (keys.length > 0) {
+            const lines = ['{'];
+            for (let dkey of keys) {
+              lines.push(`    ${fromLower(camelCase(key))}.put("${dkey}", ${formatDefault(data.default[dkey])});`);
+            }
+            lines.push('  }');
+            res = lines.join('\n');
+          }
+        }
     }
   }
   return res;

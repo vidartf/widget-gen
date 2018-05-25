@@ -26,6 +26,9 @@ public class {{ widget.name }} extends {{ widget.inherits | join(", ") }} {
   {% for propName, prop in widget.properties %}
   {% if not propName.startsWith("_") %}
   private {% if prop.type %}{{prop.javatype}}{% else %}Object{% endif %} {{propName|camelcase|fromlower}} = {{prop.defaultValue}};
+  {% if prop.initializer %}
+  {{ prop.initializer }}
+  {% endif %}
   {% endif %}
   {% endfor %}
 
