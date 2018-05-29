@@ -230,7 +230,7 @@ describe('test1', () => {
 
   });
 
-  
+
   describe('java', () => {
 
     it('should generate all the files', () => {
@@ -289,7 +289,7 @@ describe('test1', () => {
         expect(log[0]).is.instanceOf(Error);
         expect(log[0].message).to.eql(
           'Cannot write multiple widget definitions to one Java file!');
-      }, cleanUp)
+      }, cleanUp);
     });
 
   });

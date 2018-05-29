@@ -13,6 +13,7 @@ class A(Widget):
     list = List(Int(), [1, 2, 3]).tag(sync=True)
     tuple = Tuple(Int(), Unicode(), CFloat(), default_value=(3, 'foo', '4.5')).tag(sync=True)
     dict = Dict().tag(sync=True)
+    ddict = Dict(default_value={'foo': 'bar'}).tag(sync=True)
 
     not_synced = Unicode()
 

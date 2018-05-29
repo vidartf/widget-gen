@@ -109,7 +109,7 @@ trait_to_type = {
 
 
 def get_trait_default(trait):
-    if isinstance(trait, (traitlets.List, traitlets.Tuple)):
+    if isinstance(trait, (traitlets.List, traitlets.Tuple, traitlets.Dict)):
         return trait.make_dynamic_default()
     else:
         return trait.default_value

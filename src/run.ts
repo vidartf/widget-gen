@@ -60,7 +60,7 @@ function run(filename: string, languages: string[], options: Partial<IOptions>) 
     return Promise.all(instances.map((writer) => {
       return writer.finalize();
     }));
-  }).catch((error) => {
+  }, (error) => {
     console.log(error);
   });
 }

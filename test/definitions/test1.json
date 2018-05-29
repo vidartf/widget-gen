@@ -52,7 +52,10 @@
       "properties": {
         "_model_name": "Piece",
         "attributes": {
-          "type": "object"
+          "type": "object",
+          "default": {
+            "foo": "bar"
+          }
         },
         "data": {
           "type": "array",

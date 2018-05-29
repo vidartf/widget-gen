@@ -84,32 +84,12 @@ function convertValue(value: any): string {
 
 
 function makeTrait(data: Attributes.Attribute, innerTrait=false): string {
-  let traitDef: string = 'Any()';
+  let traitDef: string;
   let tag = '.tag(sync=True)'
 
-  if (data === null) {
-
-    traitDef = 'Any(None, allow_none=True)';
-
-  } else if (data === undefined) {
+  if (data === undefined) {
 
     traitDef = 'Any(Undefined)';
-
-  } else if (typeof data === 'string') {
-
-    traitDef = `Unicode(${convertValue(data)})`;
-
-  } else if (typeof data === 'number') {
-
-    if (Number.isInteger(data)) {
-      traitDef = `Int(${data})`;
-    } else {
-      traitDef = `Float(${data})`;
-    }
-
-  } else if (typeof data === 'boolean') {
-
-    traitDef = `Bool(${convertValue(data)})`
 
   } else {
 

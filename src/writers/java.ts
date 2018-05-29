@@ -24,17 +24,8 @@ class JavaWriter extends TemplateWriter {
       template: path.resolve(__dirname, '../../templates/java.njk'),
       ...options,
     });
-    this.env.addFilter('camelcase', function(str) {
-      let parsed_str = '';
-      const split = str.split("_");
-      for (let word of split) {
-        parsed_str += word.charAt(0).toUpperCase() + word.slice(1);
-      }
-      return parsed_str;
-    });
-    this.env.addFilter('fromlower', function(str) {
-      return str.charAt(0).toLowerCase() + str.slice(1);
-    });
+    this.env.addFilter('camelcase', camelCase);
+    this.env.addFilter('fromlower', fromLower);
   }
 
   /**
@@ -100,6 +91,7 @@ class JavaWriter extends TemplateWriter {
             ...attr,
             javatype: this.javatype(attr),
             defaultValue: formatDefault(attr),
+            initializer: initializer(key, attr),
           }
           return res;
         }, {} as TemplateState) : properties,
@@ -113,6 +105,20 @@ class JavaWriter extends TemplateWriter {
   }
 }
 
+
+function camelCase(str: string) {
+  let parsed_str = '';
+  const split = str.split("_");
+  for (let word of split) {
+    parsed_str += word.charAt(0).toUpperCase() + word.slice(1);
+  }
+  return parsed_str;
+}
+
+
+function fromLower(str: string) {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
 
 
 function convertValue(value: any): string {
@@ -133,14 +139,15 @@ function convertValue(value: any): string {
 }
 
 
+/**
+ * Transform the default value.
+ */
 function formatDefault(data: Attributes.Attribute, recursive=false): string {
-  let res: string = 'null';
+  let res: string;
 
-  if (data === null || data === undefined ||
-      typeof data === 'string' || typeof data === 'boolean' ||
-      typeof data === 'number') {
+  if (data === undefined ) {
 
-    // Atrtibute definition is in simplified form
+    // Attribute definition is in simplified form
     res = convertValue(data);
 
   } else {
@@ -158,13 +165,7 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
         if (data.default === null || data.default === undefined) {
           res = 'null';
         } else {
-          // TODO: This should also get an initializer if there is a default value!
-          /*
-          {
-            put("{{ key }}", {{ value }});
-          };
-          */
-          res = `new HashMap<String, Serializable>()`;
+          res = 'new HashMap<String, Serializable>()';
         }
         break;
 
@@ -206,9 +207,38 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
       }
     }
   }
-  // Only add terminating semi-colon if not called recursively:
-  if (!recursive) {
-    res = res + ';';
+  return res;
+}
+
+
+/**
+ * Create an initializer block, or return null if no block is needed.
+ */
+function initializer(key: string, data: Attributes.Attribute): string | null {
+  let res: string | null = null;
+
+  if (data !== undefined ) {
+
+    // Attribute definition is a full specification object
+    if (Attributes.isUnion(data)) {
+
+      // Use the default from the first possible union type:
+      res = initializer(key, data.oneOf[0]);
+
+    } else if (data.type === 'object') {
+        if (data.default !== null && data.default !== undefined) {
+          // This should also get an initializer if there is a default value!
+          const keys = Object.keys(data.default);
+          if (keys.length > 0) {
+            const lines = ['{'];
+            for (let dkey of keys) {
+              lines.push(`    ${fromLower(camelCase(key))}.put("${dkey}", ${formatDefault(data.default[dkey])});`);
+            }
+            lines.push('  }');
+            res = lines.join('\n');
+          }
+        }
+    }
   }
   return res;
 }
