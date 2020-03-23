@@ -75,6 +75,9 @@ class PythonWriter extends TemplateWriter {
       return `[${value.map(v => this.convertValue(v)).join(', ')}]`;
     } else if (typeof value === 'string') {
       return `'${value.toString()}'`;
+    } else if (typeof value === 'object') {
+      // Assume this is a Dict trait, inline as JSON string
+      return `json.loads('${JSON.stringify(value)}')`;
     }
     return value.toString();
   }
