@@ -1,33 +1,23 @@
-
-import {
-  MSet
-} from './setMethods';
-
+import { MSet } from './setMethods';
 
 /**
  * A self-contained widget definition.
  */
-export
-interface IWidget {
+export interface IWidget {
   properties?: {
     [key: string]: Attributes.Attribute;
-  },
+  };
   name: string;
   inherits: string[];
   localDependencies: string[];
   help?: string;
 }
 
-
-export
-namespace Attributes {
-
-
+export namespace Attributes {
   /**
    * Base structure for all attribute definitions.
    */
-  export
-  interface IBase {
+  export interface IBase {
     type: string;
     help?: string;
     allowNull?: boolean;
@@ -36,8 +26,7 @@ namespace Attributes {
   /**
    * Array/sequence attribute definition.
    */
-  export
-  interface IArray extends IBase {
+  export interface IArray extends IBase {
     type: 'array';
     default?: any[] | null;
     items?: DefinedAttribute[];
@@ -46,8 +35,7 @@ namespace Attributes {
   /**
    * Widget reference attribute definition.
    */
-  export
-  interface IWidgetRef extends IBase {
+  export interface IWidgetRef extends IBase {
     type: 'widgetRef';
     widgetType: string | string[];
     default?: null;
@@ -56,8 +44,7 @@ namespace Attributes {
   /**
    * Object/hashmap/dictionary attribute definition.
    */
-  export
-  interface IObject extends IBase {
+  export interface IObject extends IBase {
     type: 'object';
     default?: any | null;
   }
@@ -65,8 +52,7 @@ namespace Attributes {
   /**
    * String attribute definition.
    */
-  export
-  interface IString extends IBase {
+  export interface IString extends IBase {
     type: 'string';
     default?: string | null;
   }
@@ -74,8 +60,7 @@ namespace Attributes {
   /**
    * Floating point number attribute definition.
    */
-  export
-  interface IFloat extends IBase {
+  export interface IFloat extends IBase {
     type: 'float';
     default?: number | null;
   }
@@ -83,8 +68,7 @@ namespace Attributes {
   /**
    * Integer attribute definition.
    */
-  export
-  interface IInteger extends IBase {
+  export interface IInteger extends IBase {
     type: 'int';
     default?: number | null;
   }
@@ -92,8 +76,7 @@ namespace Attributes {
   /**
    * Boolean attribute definition.
    */
-  export
-  interface IBoolean extends IBase {
+  export interface IBoolean extends IBase {
     type: 'boolean';
     default?: boolean | null;
   }
@@ -101,12 +84,11 @@ namespace Attributes {
   /**
    * Numpy.ndarray-like attribute definition.
    */
-  export
-  interface INDArray extends IBase {
+  export interface INDArray extends IBase {
     type: 'ndarray';
     default?: any[] | null;
     shape?: number[];
-    dtype: string;  // TODO: Make enum
+    dtype: string; // TODO: Make enum
   }
 
   /**
@@ -114,19 +96,17 @@ namespace Attributes {
    *
    * See jupyter-datawidgets for details.
    */
-  export
-  interface IDataUnion extends IBase {
+  export interface IDataUnion extends IBase {
     type: 'dataunion';
     default?: any[] | null;
     shape?: number[];
-    dtype: string;  // TODO: Make enum
+    dtype: string; // TODO: Make enum
   }
 
   /**
    * Union attribute definition.
    */
-  export
-  interface IUnion extends IBase {
+  export interface IUnion extends IBase {
     type: 'union';
     oneOf: DefinedAttribute[];
   }
@@ -134,67 +114,60 @@ namespace Attributes {
   /**
    * An extended attribute definition.
    */
-  export
-  type DefinedAttribute = (
-    IArray | IObject | IWidgetRef |
-    IString | IFloat | IInteger |
-    IBoolean | IUnion | INDArray |
-    IDataUnion
-  );
+  export type DefinedAttribute =
+    | IArray
+    | IObject
+    | IWidgetRef
+    | IString
+    | IFloat
+    | IInteger
+    | IBoolean
+    | IUnion
+    | INDArray
+    | IDataUnion;
 
   /**
    * An attribute definition.
    */
-  export
-  type Attribute = DefinedAttribute | undefined;
+  export type Attribute = DefinedAttribute | undefined;
 
-
-  export
-  type Properties = {[key: string]: Attribute};
-
+  export type Properties = { [key: string]: Attribute };
 
   /**
    * Check whether the attribute defintion is for a union type.
    */
-  export
-  function isUnion(data: Attribute): data is IUnion {
+  export function isUnion(data: Attribute): data is IUnion {
     return !!data && data.type === 'union';
   }
 
   /**
    * Check whether the attribute defintion is for a widget reference type.
    */
-  export
-  function isWidgetRef(data: Attribute): data is IWidgetRef {
+  export function isWidgetRef(data: Attribute): data is IWidgetRef {
     return !!data && data.type === 'widgetRef';
   }
 
   /**
    * Check whether the attribute defintion is for an array/sequence type.
    */
-  export
-  function isArray(data: Attribute): data is IArray {
+  export function isArray(data: Attribute): data is IArray {
     return !!data && data.type === 'array';
   }
 
   /**
    * Check whether the attribute defintion is for an ndarray type.
    */
-  export
-  function isNDArray(data: Attribute): data is INDArray {
+  export function isNDArray(data: Attribute): data is INDArray {
     return !!data && data.type === 'ndarray';
   }
 
   /**
    * Check whether the attribute defintion is for an dataunion type.
    */
-  export
-  function isDataUnion(data: Attribute): data is IDataUnion {
+  export function isDataUnion(data: Attribute): data is IDataUnion {
     return !!data && data.type === 'dataunion';
   }
-
 }
-
 
 /**
  * Find all sub-definitions of an attribute defintion.
@@ -203,8 +176,9 @@ namespace Attributes {
  * @param {AttributeDef} data The attribute definition
  * @returns {AttributeDef[]} A flattened array of all sub-definitions
  */
-export
-function getSubDefinitions(data: Attributes.Attribute): Attributes.Attribute[] {
+export function getSubDefinitions(
+  data: Attributes.Attribute
+): Attributes.Attribute[] {
   let directSubs;
   if (Attributes.isUnion(data)) {
     directSubs = data.oneOf;
@@ -227,8 +201,7 @@ function getSubDefinitions(data: Attributes.Attribute): Attributes.Attribute[] {
  * @param {AttributeDef} data The attribute definition to check
  * @returns {boolean} Whether the attribute definition contains a widget reference
  */
-export
-function hasWidgetRef(data: Attributes.Attribute): boolean {
+export function hasWidgetRef(data: Attributes.Attribute): boolean {
   if (Attributes.isWidgetRef(data)) {
     return true;
   }
@@ -247,15 +220,20 @@ function hasWidgetRef(data: Attributes.Attribute): boolean {
  * @param {AttributeDef} data The atrtibute definition to check
  * @returns {MSet<string>} A set of the names of the referenced widgets.
  */
-export
-function getWidgetRefs(data: Attributes.Attribute): MSet<string> {
+export function getWidgetRefs(data: Attributes.Attribute): MSet<string> {
   if (Attributes.isWidgetRef(data)) {
-    return new MSet(Array.isArray(data.widgetType) ? data.widgetType : [data.widgetType]);
+    return new MSet(
+      Array.isArray(data.widgetType) ? data.widgetType : [data.widgetType]
+    );
   }
-  return new MSet(getSubDefinitions(data).reduce((cum: string[], sub) => {
-    if (Attributes.isWidgetRef(sub)) {
-      return cum.concat(Array.isArray(sub.widgetType) ? sub.widgetType : [sub.widgetType]);
-    }
-    return cum;
-  }, []));
+  return new MSet(
+    getSubDefinitions(data).reduce((cum: string[], sub) => {
+      if (Attributes.isWidgetRef(sub)) {
+        return cum.concat(
+          Array.isArray(sub.widgetType) ? sub.widgetType : [sub.widgetType]
+        );
+      }
+      return cum;
+    }, [])
+  );
 }

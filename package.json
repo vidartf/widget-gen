@@ -27,9 +27,13 @@
   },
   "scripts": {
     "build": "tsc && node ./scripts/copy-files.js",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint .",
     "manual": "npm run build && node main.js -o manual ./test/definitions/test2.py python js ts java",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
+    "prettier": "prettier --write \"(src|test|scripts)/**/*.[jt]s\"",
+    "prettier:check": "prettier --check \"(src|test|scripts)/**/*.[jt]s\"",
     "start": "node main.js",
     "test": "mocha",
     "test:cov": "nyc mocha",
@@ -62,9 +66,13 @@
     "@types/node": "^13.9.3",
     "@types/nunjucks": "^3.0.0",
     "chai": "^4.1.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
     "json-validation": "^1.0.4",
     "mocha": "^7.1.1",
     "nyc": "^15.0.0",
+    "prettier": "^2.0.1",
     "rimraf": "^3.0.2",
     "typescript": "^3.8.3"
   }

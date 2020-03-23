@@ -1,40 +1,26 @@
-
-
 import * as fs from 'fs-extra';
 
 import * as path from 'path';
 
-import {
-  compile, Template, configure, Environment
-} from 'nunjucks';
+import { compile, Template, configure, Environment } from 'nunjucks';
 
-import {
-  Writer
-} from './base';
+import { Writer } from './base';
 
-import {
-  Parser
-} from '../parsers';
+import { Parser } from '../parsers';
 
-import {
-  IWidget
-} from '../core';
-
+import { IWidget } from '../core';
 
 const NUNJUCKS_ENV = configure(path.resolve(__dirname, '../../templates'), {
   autoescape: false,
   throwOnUndefined: true,
   trimBlocks: true,
   lstripBlocks: true,
-})
+});
 
-
-export
-type TemplateState = {
-  widgets: ReadonlyArray<IWidget>,
-  [key: string]: any,
-}
-
+export type TemplateState = {
+  widgets: ReadonlyArray<IWidget>;
+  [key: string]: any;
+};
 
 /**
  * Base class for template based writers.
@@ -49,8 +35,7 @@ type TemplateState = {
  * @class TemplateWriter
  * @extends {Writer}
  */
-export
-class TemplateWriter extends Writer {
+export class TemplateWriter extends Writer {
   /**
    *
    */
@@ -104,8 +89,8 @@ class TemplateWriter extends Writer {
    * @param {IWidget} widget The widget definition
    */
   onWidget(sender: Parser, data: IWidget): void {
-    let {name} = data;
-    data = {...data};
+    let { name } = data;
+    data = { ...data };
 
     if (this.outputMultiple) {
       this._modules.push(name);
@@ -153,7 +138,10 @@ class TemplateWriter extends Writer {
       if (!this.templateFile) {
         throw new Error('No template file set!');
       }
-      this._template = TemplateWriter.compileTemplate(this.templateFile, this.env);
+      this._template = TemplateWriter.compileTemplate(
+        this.templateFile,
+        this.env
+      );
     }
     return this._template;
   }
@@ -191,7 +179,7 @@ class TemplateWriter extends Writer {
 
   /**
    * The envionment config for the template engine.
-   * 
+   *
    * @protected
    * @type {Environment}
    */
@@ -209,13 +197,10 @@ class TemplateWriter extends Writer {
   private _state: IWidget[] = [];
 }
 
-
-export
-namespace TemplateWriter {
-  export
-  interface IOptions extends Writer.IOptions {
-      template: string;
-      fileExt: string;
+export namespace TemplateWriter {
+  export interface IOptions extends Writer.IOptions {
+    template: string;
+    fileExt: string;
   }
 
   /**
@@ -223,10 +208,12 @@ namespace TemplateWriter {
    *
    * @param templatePath The path to the template file.
    */
-  export
-  function compileTemplate(templatePath: string, env: Environment) {
-    return compile(fs.readFileSync(templatePath, {
-      encoding: 'utf-8'
-    }), env);
+  export function compileTemplate(templatePath: string, env: Environment) {
+    return compile(
+      fs.readFileSync(templatePath, {
+        encoding: 'utf-8',
+      }),
+      env
+    );
   }
 }

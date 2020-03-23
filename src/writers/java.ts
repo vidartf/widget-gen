@@ -1,20 +1,13 @@
-
 import * as path from 'path';
 
-import {
-  TemplateWriter, TemplateState
-} from './template';
+import { TemplateWriter, TemplateState } from './template';
 
-import {
-  Attributes, IWidget
-} from '../core';
-
+import { Attributes, IWidget } from '../core';
 
 /**
  * A writer for Java based widgets
  */
-export
-class JavaWriter extends TemplateWriter {
+export class JavaWriter extends TemplateWriter {
   /**
    * Create a Java writer
    */
@@ -36,7 +29,9 @@ class JavaWriter extends TemplateWriter {
    */
   write(filename: string, widgets: IWidget[]): void {
     if (widgets.length > 1 && !this.outputMultiple) {
-      throw new Error('Cannot write multiple widget definitions to one Java file!');
+      throw new Error(
+        'Cannot write multiple widget definitions to one Java file!'
+      );
     }
     return super.write(filename, widgets);
   }
@@ -45,36 +40,36 @@ class JavaWriter extends TemplateWriter {
     if (!attr) {
       return 'Object';
     }
-    switch(attr.type) {
-    case 'string': {
-      return 'String';
-    }
-    case 'boolean': {
-      return 'boolean';
-    }
-    case 'int': {
-      return 'int';
-    }
-    case 'float': {
-      return 'double';
-    }
-    case 'array': {
-      return 'List';
-    }
-    case 'object': {
-      return 'Map<String, Serializable>';
-    }
-    case 'widgetRef': {
-      if (Array.isArray(attr.widgetType)) {
-        // For widget refs that can be one of multiple types,
-        // use the known common base:
-        return 'Widget';
+    switch (attr.type) {
+      case 'string': {
+        return 'String';
       }
-      return attr.widgetType;
-    }
-    default: {
-      return 'Object';
-    }
+      case 'boolean': {
+        return 'boolean';
+      }
+      case 'int': {
+        return 'int';
+      }
+      case 'float': {
+        return 'double';
+      }
+      case 'array': {
+        return 'List';
+      }
+      case 'object': {
+        return 'Map<String, Serializable>';
+      }
+      case 'widgetRef': {
+        if (Array.isArray(attr.widgetType)) {
+          // For widget refs that can be one of multiple types,
+          // use the known common base:
+          return 'Widget';
+        }
+        return attr.widgetType;
+      }
+      default: {
+        return 'Object';
+      }
     }
   }
 
@@ -82,19 +77,21 @@ class JavaWriter extends TemplateWriter {
     data = super.transformState(data);
     data.package = '<placeholderPackageName>';
     data.widgets = data.widgets.map((widget) => {
-      let {properties} = widget;
+      let { properties } = widget;
       return {
         ...widget,
-        properties: properties ? Object.keys(properties).reduce((res, key) => {
-          let attr = properties![key];
-          res[key] = {
-            ...attr,
-            javatype: this.javatype(attr),
-            defaultValue: formatDefault(attr),
-            initializer: initializer(key, attr),
-          }
-          return res;
-        }, {} as TemplateState) : properties,
+        properties: properties
+          ? Object.keys(properties).reduce((res, key) => {
+              let attr = properties![key];
+              res[key] = {
+                ...attr,
+                javatype: this.javatype(attr),
+                defaultValue: formatDefault(attr),
+                initializer: initializer(key, attr),
+              };
+              return res;
+            }, {} as TemplateState)
+          : properties,
       };
     });
     return data;
@@ -105,21 +102,18 @@ class JavaWriter extends TemplateWriter {
   }
 }
 
-
 function camelCase(str: string) {
   let parsed_str = '';
-  const split = str.split("_");
+  const split = str.split('_');
   for (let word of split) {
     parsed_str += word.charAt(0).toUpperCase() + word.slice(1);
   }
   return parsed_str;
 }
 
-
 function fromLower(str: string) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 }
-
 
 function convertValue(value: any): string {
   if (value === true) {
@@ -131,85 +125,77 @@ function convertValue(value: any): string {
   } else if (value === undefined) {
     return 'null';
   } else if (Array.isArray(value)) {
-    return `${value.map(v => convertValue(v)).join(', ')}`;
+    return `${value.map((v) => convertValue(v)).join(', ')}`;
   } else if (typeof value === 'string') {
     return `"${value.toString()}"`;
   }
   return value.toString();
 }
 
-
 /**
  * Transform the default value.
  */
-function formatDefault(data: Attributes.Attribute, recursive=false): string {
+function formatDefault(data: Attributes.Attribute, recursive = false): string {
   let res: string;
 
-  if (data === undefined ) {
-
+  if (data === undefined) {
     // Attribute definition is in simplified form
     res = convertValue(data);
-
   } else {
     // Atrtibute definition is a full specification object
     if (Attributes.isUnion(data)) {
-
       // Use the default from the first possible union type:
       res = formatDefault(data.oneOf[0], true);
-
     } else {
-
       switch (data.type) {
-
-      case 'object':
-        if (data.default === null || data.default === undefined) {
-          res = 'null';
-        } else {
-          res = 'new HashMap<String, Serializable>()';
-        }
-        break;
-
-      case 'array':
-        let items = data.items;
-        if (items === undefined) {
-          res = `new ArrayList<>()`;
-        } else if (Array.isArray(items)) {
-          if (data.default !== undefined) {
-            res = (`Arrays.asList(${convertValue(data.default)})`);
+        case 'object':
+          if (data.default === null || data.default === undefined) {
+            res = 'null';
           } else {
-            res = `new ArrayList<>()`;
+            res = 'new HashMap<String, Serializable>()';
           }
-        } else {
-          res = `Arrays.asList(${formatDefault(items, true)}))`
-        }
-        break;
+          break;
 
-      case 'widgetRef':
-        if (data.default === null || data.default === undefined) {
-          res = 'null';
-        } else {
-          res = `new ${data.widgetType}()`;
-        }
-        break;
+        case 'array':
+          let items = data.items;
+          if (items === undefined) {
+            res = `new ArrayList<>()`;
+          } else if (Array.isArray(items)) {
+            if (data.default !== undefined) {
+              res = `Arrays.asList(${convertValue(data.default)})`;
+            } else {
+              res = `new ArrayList<>()`;
+            }
+          } else {
+            res = `Arrays.asList(${formatDefault(items, true)}))`;
+          }
+          break;
 
-      case 'ndarray':
-        // TODO: Make a Java package for ipydatawidgets
-        res = `null`;
-        break;
+        case 'widgetRef':
+          if (data.default === null || data.default === undefined) {
+            res = 'null';
+          } else {
+            res = `new ${data.widgetType}()`;
+          }
+          break;
 
-      case 'dataunion':
-      // TODO: Make a Java package for ipydatawidgets
-        res = `null`;
-        break;
+        case 'ndarray':
+          // TODO: Make a Java package for ipydatawidgets
+          res = `null`;
+          break;
 
-      default:
-        res = convertValue(data.default);
+        case 'dataunion':
+          // TODO: Make a Java package for ipydatawidgets
+          res = `null`;
+          break;
+
+        default:
+          res = convertValue(data.default);
       }
     }
   }
   return res;
 }
-
 
 /**
  * Create an initializer block, or return null if no block is needed.
@@ -217,27 +203,28 @@ function formatDefault(data: Attributes.Attribute, recursive=false): string {
 function initializer(key: string, data: Attributes.Attribute): string | null {
   let res: string | null = null;
 
-  if (data !== undefined ) {
-
+  if (data !== undefined) {
     // Attribute definition is a full specification object
     if (Attributes.isUnion(data)) {
-
       // Use the default from the first possible union type:
       res = initializer(key, data.oneOf[0]);
-
     } else if (data.type === 'object') {
-        if (data.default !== null && data.default !== undefined) {
-          // This should also get an initializer if there is a default value!
-          const keys = Object.keys(data.default);
-          if (keys.length > 0) {
-            const lines = ['{'];
-            for (let dkey of keys) {
-              lines.push(`    ${fromLower(camelCase(key))}.put("${dkey}", ${formatDefault(data.default[dkey])});`);
-            }
-            lines.push('  }');
-            res = lines.join('\n');
+      if (data.default !== null && data.default !== undefined) {
+        // This should also get an initializer if there is a default value!
+        const keys = Object.keys(data.default);
+        if (keys.length > 0) {
+          const lines = ['{'];
+          for (let dkey of keys) {
+            lines.push(
+              `    ${fromLower(camelCase(key))}.put("${dkey}", ${formatDefault(
+                data.default[dkey]
+              )});`
+            );
           }
+          lines.push('  }');
+          res = lines.join('\n');
         }
+      }
     }
   }
   return res;

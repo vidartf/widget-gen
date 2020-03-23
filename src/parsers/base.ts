@@ -1,23 +1,12 @@
+import { Signal, ISignal } from '@lumino/signaling';
 
-import {
-  Signal, ISignal
-} from '@lumino/signaling';
+import { IWidget, getWidgetRefs, Attributes } from '../core';
 
-import {
-  IWidget, getWidgetRefs, Attributes
-} from '../core';
+import { MSet } from '../setMethods';
 
-import {
-  MSet
-} from '../setMethods';
-
-
-
-export
-interface IParserConstructor {
+export interface IParserConstructor {
   new (filename: string): Parser;
 }
-
 
 /**
  * The base parser class.
@@ -32,15 +21,13 @@ interface IParserConstructor {
  *    that this does not entail that all consumers have finished
  *    processing *if they perform async processing*.
  */
-export
-abstract class Parser {
+export abstract class Parser {
   /**
    * Initialize the parser.
    *
    * @param input String input to the parser, typically a filename
    */
-  constructor(protected input: string) {
-  }
+  constructor(protected input: string) {}
 
   /**
    * Start generating widget definitions.
@@ -61,7 +48,9 @@ abstract class Parser {
    * @param {IWidget} data The widget definition to inspect
    * @returns {MSet<string>} A set of widget names referenced
    */
-  resolveInternalRefs(properties: Attributes.Properties | undefined): MSet<string> {
+  resolveInternalRefs(
+    properties: Attributes.Properties | undefined
+  ): MSet<string> {
     if (!properties) {
       return new MSet();
     }
@@ -93,7 +82,5 @@ abstract class Parser {
    */
   abstract readonly widgetNames: MSet<string>;
 
-
   protected _newWidget = new Signal<this, IWidget>(this);
 }
-

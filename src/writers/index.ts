@@ -1,28 +1,14 @@
+import { IWriterConstructor } from './base';
 
+import { PythonWriter } from './python';
 
-import {
-  IWriterConstructor
-} from './base';
+import { JavaWriter } from './java';
 
-import {
-  PythonWriter
-} from './python';
+import { JSES5Writer, JSES6Writer, TSWriter } from './js';
 
-import {
-  JavaWriter
-} from './java';
+export { Writer, IWriterConstructor } from './base';
 
-import {
-  JSES5Writer, JSES6Writer, TSWriter
-} from './js';
-
-
-export {
-  Writer, IWriterConstructor
-} from './base';
-
-export
-let writers: {[key: string]: IWriterConstructor| undefined} = {
+export let writers: { [key: string]: IWriterConstructor | undefined } = {
   python: PythonWriter,
   js: JSES5Writer,
   javascript: JSES5Writer,
@@ -32,4 +18,4 @@ let writers: {[key: string]: IWriterConstructor| undefined} = {
   es6: JSES6Writer,
   ts: TSWriter,
   java: JavaWriter,
-}
+};

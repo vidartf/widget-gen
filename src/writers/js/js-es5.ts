@@ -1,16 +1,10 @@
-
-
 import * as fs from 'fs-extra';
 
 import * as path from 'path';
 
-import {
-  BaseJSWriter
-} from './base';
-
+import { BaseJSWriter } from './base';
 
 const INDENT = '  ';
-
 
 /**
  * Javascript ES5 code writer.
@@ -18,9 +12,7 @@ const INDENT = '  ';
  * Will generate ES5 code, but will have a dependency on underscore
  * for utility functions.
  */
-export
-class JSES5Writer extends BaseJSWriter {
-
+export class JSES5Writer extends BaseJSWriter {
   constructor(output: string, options: Partial<BaseJSWriter.IOptions> = {}) {
     super(output, {
       template: path.resolve(__dirname, '../../../templates/js-es5.njk'),
@@ -32,7 +24,7 @@ class JSES5Writer extends BaseJSWriter {
    * Called when all widgets are parsed. Writes index.js if appropriate.
    */
   finalize(): Promise<void> {
-    return super.finalize().then(() =>{
+    return super.finalize().then(() => {
       if (this.outputMultiple) {
         // Write init file for directory output
         let fname = path.join(this.output, `index.js`);

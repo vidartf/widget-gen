@@ -1,14 +1,8 @@
-
 import * as path from 'path';
 
-import {
-  Parser, JsonParser, PythonParser
-} from './parsers';
+import { Parser, JsonParser, PythonParser } from './parsers';
 
-import {
-  writers, Writer
-} from './writers';
-
+import { writers, Writer } from './writers';
 
 function makeParser(filename: string, parserName?: string): Parser {
   if (parserName !== undefined) {
@@ -23,27 +17,32 @@ function makeParser(filename: string, parserName?: string): Parser {
     }
   }
   switch (path.extname(filename)) {
-  case '':
-  case '.json':
-    return new JsonParser(filename);
-  case '.py':
-    return new PythonParser(filename);
-  default:
-    throw new Error(`Unknown file extension for file: ${filename}`);
+    case '':
+    case '.json':
+      return new JsonParser(filename);
+    case '.py':
+      return new PythonParser(filename);
+    default:
+      throw new Error(`Unknown file extension for file: ${filename}`);
   }
 }
 
-export
-function run(filename: string, languages: string[], options: Partial<IOptions>) {
-  const {parserName, templateFile, fileExt} = options;
+export function run(
+  filename: string,
+  languages: string[],
+  options: Partial<IOptions>
+) {
+  const { parserName, templateFile, fileExt } = options;
   const output = options.output || '.';
   let parser = makeParser(filename, parserName);
   let instances: Writer[] = [];
   for (let language of languages) {
     let writerCtor = writers[language];
     if (writerCtor === undefined) {
-      throw new Error(`Unknown language: ${language}. ` +
-        `Valid languages: ${Object.keys(writers)}.`);
+      throw new Error(
+        `Unknown language: ${language}. ` +
+          `Valid languages: ${Object.keys(writers)}.`
+      );
     }
     let options: Writer.IOptions = {};
     if (templateFile) {
@@ -56,18 +55,21 @@ function run(filename: string, languages: string[], options: Partial<IOptions>) 
     instances.push(writer);
     parser.newWidget.connect(writer.onWidget, writer);
   }
-  return parser.start().then(() => {
-    return Promise.all(instances.map((writer) => {
-      return writer.finalize();
-    }));
-  }, (error) => {
-    console.log(error);
-  });
+  return parser.start().then(
+    () => {
+      return Promise.all(
+        instances.map((writer) => {
+          return writer.finalize();
+        })
+      );
+    },
+    (error) => {
+      console.log(error);
+    }
+  );
 }
 
-
-export
-interface IOptions {
+export interface IOptions {
   output: string;
   parserName: string;
   templateFile: string;
