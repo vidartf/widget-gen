@@ -1,7 +1,7 @@
 
 import {
   Signal, ISignal
-} from '@phosphor/signaling';
+} from '@lumino/signaling';
 
 import {
   IWidget, getWidgetRefs, Attributes
