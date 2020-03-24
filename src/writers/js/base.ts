@@ -2,7 +2,7 @@ import * as path from 'path';
 
 import { TemplateWriter, TemplateState } from '../template';
 
-import { hasWidgetRef, Attributes } from '../../core';
+import { hasWidgetRef } from '../../core';
 
 import { getDefaultValue } from './utils';
 
@@ -30,9 +30,9 @@ export class BaseJSWriter extends TemplateWriter {
       const serializers: { [key: string]: string } = {};
       if (properties) {
         for (let key of Object.keys(properties)) {
-          if (Attributes.isDataUnion(properties[key])) {
+          if (properties[key]?.type === 'union') {
             serializers[key] = 'data_union_serialization';
-          } else if (Attributes.isNDArray(properties[key])) {
+          } else if (properties[key]?.type === 'ndarray') {
             serializers[key] = 'array_serialization';
           } else if (hasWidgetRef(properties[key])) {
             serializers[key] = '{ deserialize: unpack_models }';

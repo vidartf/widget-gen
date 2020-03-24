@@ -21,7 +21,7 @@ export function getDefaultValue(data: Attributes.Attribute): string {
     typeof data === 'string'
   ) {
     return formatValue(data);
-  } else if (Attributes.isUnion(data)) {
+  } else if (data.type === 'union') {
     return getDefaultValue(data.oneOf[0]);
   }
   // JSON object

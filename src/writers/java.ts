@@ -143,7 +143,7 @@ function formatDefault(data: Attributes.Attribute, recursive = false): string {
     res = convertValue(data);
   } else {
     // Atrtibute definition is a full specification object
-    if (Attributes.isUnion(data)) {
+    if (data.type === 'union') {
       // Use the default from the first possible union type:
       res = formatDefault(data.oneOf[0], true);
     } else {
@@ -205,7 +205,7 @@ function initializer(key: string, data: Attributes.Attribute): string | null {
 
   if (data !== undefined) {
     // Attribute definition is a full specification object
-    if (Attributes.isUnion(data)) {
+    if (data?.type === 'union') {
       // Use the default from the first possible union type:
       res = initializer(key, data.oneOf[0]);
     } else if (data.type === 'object') {

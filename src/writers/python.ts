@@ -90,7 +90,7 @@ export class PythonWriter extends TemplateWriter {
       if (data.allowNull !== undefined && data.allowNull !== false) {
         allowNoneArg = `, allow_none=${this.convertValue(data.allowNull)}`;
       }
-      if (Attributes.isUnion(data)) {
+      if (data.type === 'union') {
         const defs = data.oneOf.map((subdata) => this.makeTrait(subdata, true));
         traitDef = `Union([\n${INDENT}${INDENT}${defs.join(
           `,\n${INDENT}${INDENT}`

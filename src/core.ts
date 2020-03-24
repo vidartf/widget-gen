@@ -132,41 +132,6 @@ export namespace Attributes {
   export type Attribute = DefinedAttribute | undefined;
 
   export type Properties = { [key: string]: Attribute };
-
-  /**
-   * Check whether the attribute defintion is for a union type.
-   */
-  export function isUnion(data: Attribute): data is IUnion {
-    return !!data && data.type === 'union';
-  }
-
-  /**
-   * Check whether the attribute defintion is for a widget reference type.
-   */
-  export function isWidgetRef(data: Attribute): data is IWidgetRef {
-    return !!data && data.type === 'widgetRef';
-  }
-
-  /**
-   * Check whether the attribute defintion is for an array/sequence type.
-   */
-  export function isArray(data: Attribute): data is IArray {
-    return !!data && data.type === 'array';
-  }
-
-  /**
-   * Check whether the attribute defintion is for an ndarray type.
-   */
-  export function isNDArray(data: Attribute): data is INDArray {
-    return !!data && data.type === 'ndarray';
-  }
-
-  /**
-   * Check whether the attribute defintion is for an dataunion type.
-   */
-  export function isDataUnion(data: Attribute): data is IDataUnion {
-    return !!data && data.type === 'dataunion';
-  }
 }
 
 /**
@@ -180,9 +145,9 @@ export function getSubDefinitions(
   data: Attributes.Attribute
 ): Attributes.Attribute[] {
   let directSubs;
-  if (Attributes.isUnion(data)) {
+  if (data?.type === 'union') {
     directSubs = data.oneOf;
-  } else if (Attributes.isArray(data) && data.items) {
+  } else if (data?.type === 'array' && data.items) {
     directSubs = Array.isArray(data.items) ? data.items : [data.items];
   } else {
     return [];
@@ -202,11 +167,11 @@ export function getSubDefinitions(
  * @returns {boolean} Whether the attribute definition contains a widget reference
  */
 export function hasWidgetRef(data: Attributes.Attribute): boolean {
-  if (Attributes.isWidgetRef(data)) {
+  if (data?.type === 'widgetRef') {
     return true;
   }
   for (let sub of getSubDefinitions(data)) {
-    if (Attributes.isWidgetRef(sub)) {
+    if (sub?.type === 'widgetRef') {
       return true;
     }
   }
@@ -221,14 +186,14 @@ export function hasWidgetRef(data: Attributes.Attribute): boolean {
  * @returns {MSet<string>} A set of the names of the referenced widgets.
  */
 export function getWidgetRefs(data: Attributes.Attribute): MSet<string> {
-  if (Attributes.isWidgetRef(data)) {
+  if (data?.type === 'widgetRef') {
     return new MSet(
       Array.isArray(data.widgetType) ? data.widgetType : [data.widgetType]
     );
   }
   return new MSet(
     getSubDefinitions(data).reduce((cum: string[], sub) => {
-      if (Attributes.isWidgetRef(sub)) {
+      if (sub?.type === 'widgetRef') {
         return cum.concat(
           Array.isArray(sub.widgetType) ? sub.widgetType : [sub.widgetType]
         );
