@@ -107,6 +107,9 @@ trait_to_type = {
     traitlets.Tuple: "array",
     traitlets.Dict: "object",
     traitlets.Instance: "widgetRef",
+    traitlets.Enum: "any",
+    traitlets.CaselessStrEnum: "string",
+    traitlets.Any: "any",
     traitlets.Union: "union",
     NDArray: "ndarray",
     DataUnion: "dataunion",
@@ -118,6 +121,11 @@ def get_trait_default(trait):
         return trait.make_dynamic_default()
     else:
         return trait.default_value
+
+
+def get_enums(trait):
+    if isinstance(trait, (traitlets.Enum)):
+        return trait.values
 
 
 def convertTrait(trait):
@@ -134,6 +142,10 @@ def convertTrait(trait):
             pass
         elif not isinstance(trait, traitlets.Union):
             definition["default"] = default
+
+    enums = get_enums(trait)
+    if enums is not None:
+        definition["enum"] = enums
 
     for tt, type_name in trait_to_type.items():
         if isinstance(trait, tt):

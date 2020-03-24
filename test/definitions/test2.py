@@ -1,5 +1,6 @@
 from ipywidgets import DOMWidget, Widget, widget_serialization
 from traitlets import (
+    Any,
     Bool,
     CFloat,
     Dict,
@@ -26,6 +27,9 @@ class A(Widget):
     )
     dict = Dict().tag(sync=True)
     ddict = Dict(default_value={"foo": "bar"}).tag(sync=True)
+    enum = Enum(("foo", "bar"), default_value="bar").tag(sync=True)
+    enum_none = Enum(("foo", "bar"), default_value=None, allow_none=True).tag(sync=True)
+    any = Any(42).tag(sync=True)
 
     not_synced = Unicode()
 

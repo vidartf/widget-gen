@@ -95,9 +95,33 @@ export class PythonWriter extends TemplateWriter {
         traitDef = `Union([\n${INDENT}${INDENT}${defs.join(
           `,\n${INDENT}${INDENT}`
         )}\n${INDENT}]${allowNoneArg})`;
+      } else if (data?.enum) {
+        // TODO: Figure out a way to combine enum validation with normal traits
+        // (probably make our own trait types via mixins)
+        let values = [
+          `[`,
+          ...data.enum.map((v) => `${INDENT}${this.convertValue(v)},`),
+          `]`,
+        ].join(`\n${INDENT}${INDENT}`);
+        let entries = [values];
+        let defValue = this.convertValue(data.default);
+        if (defValue !== '') {
+          entries.push(`default_value=${defValue}`);
+        }
+        if (allowNoneArg) {
+          entries.push(allowNoneArg.slice(2));
+        }
+        traitDef =
+          'Enum(' +
+          `\n${INDENT}${INDENT}${entries.join(`,\n${INDENT}${INDENT}`)}\n` +
+          `${INDENT})`;
       } else {
         let defValue = this.convertValue(data.default);
         switch (data.type) {
+          case 'any':
+            traitDef = `Any(${defValue}${allowNoneArg})`;
+            break;
+
           case 'int':
             traitDef = `Int(${defValue}${allowNoneArg})`;
             break;

@@ -21,6 +21,7 @@ export namespace Attributes {
     type: string;
     help?: string;
     allowNull?: boolean;
+    enum?: any[];
   }
 
   /**
@@ -82,6 +83,14 @@ export namespace Attributes {
   }
 
   /**
+   * Any attribute definition.
+   */
+  export interface IAny extends IBase {
+    type: 'any';
+    default?: any;
+  }
+
+  /**
    * Numpy.ndarray-like attribute definition.
    */
   export interface INDArray extends IBase {
@@ -122,6 +131,7 @@ export namespace Attributes {
     | IFloat
     | IInteger
     | IBoolean
+    | IAny
     | IUnion
     | INDArray
     | IDataUnion;

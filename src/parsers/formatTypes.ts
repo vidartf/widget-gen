@@ -26,6 +26,7 @@ export interface IWidgetJSON {
 export interface IBaseAttributeJSON {
   help?: string;
   allowNull?: boolean;
+  enum?: any[];
 }
 
 /**
@@ -124,6 +125,14 @@ export interface IUnionAttributeJSON extends IBaseAttributeJSON {
 }
 
 /**
+ * Union attribute definition.
+ */
+export interface IAnyAttributeJSON extends IBaseAttributeJSON {
+  type: undefined;
+  default?: any;
+}
+
+/**
  * An extended attribute definition.
  */
 export type IAttributeJSON =
@@ -146,6 +155,7 @@ export type NNAttributeDef = string | number | boolean | IAttributeJSON;
 export type AttributeDef =
   | NNAttributeDef
   | IUnionAttributeJSON
+  | IAnyAttributeJSON
   | null
   | undefined;
 
@@ -166,17 +176,24 @@ export function isUnionAttribute(
 }
 
 /**
+ * Check whether the attribute defintion is for a union type.
+ */
+export function isAnyAttribute(data: AttributeDef): data is IAnyAttributeJSON {
+  return (
+    !!data &&
+    typeof data === 'object' &&
+    !isUnionAttribute(data) &&
+    data?.type === undefined
+  );
+}
+
+/**
  * Check whether the attribute defintion is for a widget reference type.
  */
 export function isWidgetRef(
   data: AttributeDef
 ): data is IWidgetRefAttributeJSON {
-  return (
-    !!data &&
-    typeof data === 'object' &&
-    !isUnionAttribute(data) &&
-    data.type === 'widgetRef'
-  );
+  return !!data && typeof data === 'object' && data?.type === 'widgetRef';
 }
 
 /**
@@ -185,12 +202,7 @@ export function isWidgetRef(
 export function isArrayAttribute(
   data: AttributeDef
 ): data is IArrayAttributeJSON {
-  return (
-    !!data &&
-    typeof data === 'object' &&
-    !isUnionAttribute(data) &&
-    data.type === 'array'
-  );
+  return !!data && typeof data === 'object' && (data as any)?.type === 'array';
 }
 
 /**
@@ -198,10 +210,7 @@ export function isArrayAttribute(
  */
 export function isNDArray(data: AttributeDef): data is INDArrayAttributeJSON {
   return (
-    !!data &&
-    typeof data === 'object' &&
-    !isUnionAttribute(data) &&
-    data.type === 'ndarray'
+    !!data && typeof data === 'object' && (data as any)?.type === 'ndarray'
   );
 }
 
@@ -211,12 +220,7 @@ export function isNDArray(data: AttributeDef): data is INDArrayAttributeJSON {
 export function isDataUnion(
   data: AttributeDef
 ): data is IDataUnionAttributeJSON {
-  return (
-    !!data &&
-    typeof data === 'object' &&
-    !isUnionAttribute(data) &&
-    data.type === 'dataunion'
-  );
+  return !!data && typeof data === 'object' && data?.type === 'dataunion';
 }
 
 /**
@@ -265,7 +269,13 @@ export function translateToInternal(
     return {
       type: 'union',
       oneOf: attribute.oneOf.map((a) => translateToInternal(a)),
+      enum: attribute.enum,
     } as Attributes.IUnion;
+  } else if (isAnyAttribute(attribute)) {
+    return {
+      ...attribute,
+      type: 'any',
+    } as Attributes.IAny;
   } else if (isArrayAttribute(attribute)) {
     let items: undefined | Attributes.DefinedAttribute[];
     if (attribute.items === undefined) {
