@@ -1,27 +1,40 @@
-
 from ipywidgets import Widget, DOMWidget, widget_serialization
 
-from traitlets import Unicode, Instance, Union, List, Tuple, Dict, Int, CFloat, Bool, Undefined
+from traitlets import (
+    Unicode,
+    Instance,
+    Union,
+    List,
+    Tuple,
+    Dict,
+    Int,
+    CFloat,
+    Bool,
+    Undefined,
+    Enum,
+)
 
 
 class A(Widget):
-    _model_name = Unicode('A').tag(sync=True)
-    _model_module = Unicode('test2').tag(sync=True)
+    _model_name = Unicode("A").tag(sync=True)
+    _model_module = Unicode("test2").tag(sync=True)
 
     string = Unicode(None, allow_none=True).tag(sync=True)
     boolean = Bool(True).tag(sync=True)
     list = List(Int(), [1, 2, 3]).tag(sync=True)
-    tuple = Tuple(Int(), Unicode(), CFloat(), default_value=(3, 'foo', '4.5')).tag(sync=True)
+    tuple = Tuple(Int(), Unicode(), CFloat(), default_value=(3, "foo", "4.5")).tag(
+        sync=True
+    )
     dict = Dict().tag(sync=True)
-    ddict = Dict(default_value={'foo': 'bar'}).tag(sync=True)
+    ddict = Dict(default_value={"foo": "bar"}).tag(sync=True)
 
     not_synced = Unicode()
 
 
 class B(A):
-    _model_name = Unicode('B').tag(sync=True)
+    _model_name = Unicode("B").tag(sync=True)
 
     ref = Instance(A).tag(sync=True, **widget_serialization)
 
 
-__all__ = ['A', 'B']
+__all__ = ["A", "B"]

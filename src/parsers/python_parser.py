@@ -1,4 +1,3 @@
-
 import argparse
 import inspect
 import importlib
@@ -14,7 +13,7 @@ import traitlets
 
 def _build_arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('input')
+    parser.add_argument("input")
     return parser
 
 
@@ -29,13 +28,15 @@ def main(args=None):
 
 def find_widgets(filename=None, module_name=None, package=None):
     if filename is not None:
-        spec = importlib.util.spec_from_file_location(module_name or '_widget_gen_import', filename)
+        spec = importlib.util.spec_from_file_location(
+            module_name or "_widget_gen_import", filename
+        )
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
     elif module_name is not None:
         mod = importlib.import_module(module_name, package=package)
     else:
-        raise ValueError('Either filename or module_name need to be passed!')
+        raise ValueError("Either filename or module_name need to be passed!")
 
     try:
         candidates = mod.__all__
@@ -44,8 +45,11 @@ def find_widgets(filename=None, module_name=None, package=None):
 
     for candidate_name in candidates:
         candidate = getattr(mod, candidate_name)
-        if (inspect.isclass(candidate) and issubclass(candidate, Widget) and 
-                candidate not in (Widget, DOMWidget)):
+        if (
+            inspect.isclass(candidate)
+            and issubclass(candidate, Widget)
+            and candidate not in (Widget, DOMWidget)
+        ):
             yield (candidate_name, candidate)
 
 
@@ -63,7 +67,7 @@ def convert(value):
     """Convert widget definitions to JSON-able object"""
     widget_definitions = {}
 
-    if (os.path.splitext(value)[1] == '.py'):
+    if os.path.splitext(value)[1] == ".py":
         for (name, cls) in find_widgets(filename=value):
             widget_definitions[name] = convertWidget(name, cls)
     else:
@@ -78,33 +82,33 @@ def convertWidget(name, cls):
     definition = {}
 
     if cls.__init__.__doc__:
-        definition['help'] = cls.__init__.__doc__
+        definition["help"] = cls.__init__.__doc__
     elif cls.__doc__:
-        definition['help'] = cls.__doc__
+        definition["help"] = cls.__doc__
 
     if cls.__bases__:
-        definition['inherits'] = [base.__name__ for base in cls.__bases__]
+        definition["inherits"] = [base.__name__ for base in cls.__bases__]
 
     properties = {}
     for name, trait in cls.class_own_traits(sync=True).items():
         properties[name] = convertTrait(trait)
     if properties:
-        definition['properties'] = properties
+        definition["properties"] = properties
 
     return definition
 
 
 trait_to_type = {
-    traitlets.Unicode: 'string',
-    traitlets.Bool: 'boolean',
-    traitlets.Int: 'int',
-    traitlets.Float: 'float',
-    traitlets.List: 'array',
-    traitlets.Tuple: 'array',
-    traitlets.Dict: 'object',
-    traitlets.Instance: 'widgetRef',
-    NDArray: 'ndarray',
-    DataUnion: 'dataunion',
+    traitlets.Unicode: "string",
+    traitlets.Bool: "boolean",
+    traitlets.Int: "int",
+    traitlets.Float: "float",
+    traitlets.List: "array",
+    traitlets.Tuple: "array",
+    traitlets.Dict: "object",
+    traitlets.Instance: "widgetRef",
+    NDArray: "ndarray",
+    DataUnion: "dataunion",
 }
 
 
@@ -118,9 +122,9 @@ def get_trait_default(trait):
 def convertTrait(trait):
     definition = {}
     if trait.allow_none is not traitlets.Undefined:
-        definition['allowNull'] = trait.allow_none
-    if trait.help not in (traitlets.Undefined, '', None):
-        definition['help'] = trait.help
+        definition["allowNull"] = trait.allow_none
+    if trait.help not in (traitlets.Undefined, "", None):
+        definition["help"] = trait.help
 
     default = get_trait_default(trait)
     if default is not trait.__class__.default_value:
@@ -128,29 +132,30 @@ def convertTrait(trait):
             # TODO: Extract shape and dtype constraints, and convert default value to list
             pass
         elif not isinstance(trait, traitlets.Union):
-            definition['default'] = default
+            definition["default"] = default
 
     for tt, type_name in trait_to_type.items():
         if isinstance(trait, tt):
-            definition['type'] = type_name
-            if type_name == 'array':
-                subtraits = getattr(trait, '_traits', None)
-                subtrait = getattr(trait, '_trait', None)
+            definition["type"] = type_name
+            if type_name == "array":
+                subtraits = getattr(trait, "_traits", None)
+                subtrait = getattr(trait, "_trait", None)
                 if subtraits not in (None, traitlets.Undefined):
-                    definition['items'] = [convertTrait(subtt) for subtt in subtraits]
+                    definition["items"] = [convertTrait(subtt) for subtt in subtraits]
                 elif subtrait:
-                    definition['items'] = convertTrait(subtrait)
-            if type_name == 'widgetRef':
+                    definition["items"] = convertTrait(subtrait)
+            if type_name == "widgetRef":
                 if inspect.isclass(trait.klass):
-                    definition['widgetType'] = trait.klass.__name__
+                    definition["widgetType"] = trait.klass.__name__
                 else:
-                    definition['widgetType'] = trait.klass
+                    definition["widgetType"] = trait.klass
             break
     else:
         if isinstance(trait, traitlets.Union):
-            definition['oneOf'] = [convertTrait(subtt) for subtt in trait.trait_types]
+            definition["oneOf"] = [convertTrait(subtt) for subtt in trait.trait_types]
 
     return definition
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sys.exit(main())
