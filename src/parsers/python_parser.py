@@ -55,31 +55,31 @@ def find_widgets(filename=None, module_name=None, package=None):
 
 def convert_module(module_name, package=None):
     """Convert widget definitions to JSON-able object"""
-    widget_definitions = {}
+    widget_definitions = []
 
     for (name, cls) in find_widgets(module_name=module_name, package=package):
-        widget_definitions[name] = convertWidget(name, cls)
+        widget_definitions.append(convertWidget(name, cls))
 
-    return dict(widgets=widget_definitions)
+    return widget_definitions
 
 
 def convert(value):
     """Convert widget definitions to JSON-able object"""
-    widget_definitions = {}
+    widget_definitions = []
 
     if os.path.splitext(value)[1] == ".py":
         for (name, cls) in find_widgets(filename=value):
-            widget_definitions[name] = convertWidget(name, cls)
+            widget_definitions.append(convertWidget(name, cls))
     else:
         # Assume input is module name
         for (name, cls) in find_widgets(module_name=value):
-            widget_definitions[name] = convertWidget(name, cls)
+            widget_definitions.append(convertWidget(name, cls))
 
-    return dict(widgets=widget_definitions)
+    return widget_definitions
 
 
 def convertWidget(name, cls):
-    definition = {}
+    definition = dict(name=name)
 
     if cls.__init__.__doc__:
         definition["help"] = cls.__init__.__doc__
@@ -107,6 +107,7 @@ trait_to_type = {
     traitlets.Tuple: "array",
     traitlets.Dict: "object",
     traitlets.Instance: "widgetRef",
+    traitlets.Union: "union",
     NDArray: "ndarray",
     DataUnion: "dataunion",
 }
@@ -144,15 +145,16 @@ def convertTrait(trait):
                     definition["items"] = [convertTrait(subtt) for subtt in subtraits]
                 elif subtrait:
                     definition["items"] = convertTrait(subtrait)
-            if type_name == "widgetRef":
+            elif type_name == "widgetRef":
                 if inspect.isclass(trait.klass):
                     definition["widgetType"] = trait.klass.__name__
                 else:
                     definition["widgetType"] = trait.klass
+            elif type_name == "union":
+                definition["oneOf"] = [
+                    convertTrait(subtt) for subtt in trait.trait_types
+                ]
             break
-    else:
-        if isinstance(trait, traitlets.Union):
-            definition["oneOf"] = [convertTrait(subtt) for subtt in trait.trait_types]
 
     return definition
 

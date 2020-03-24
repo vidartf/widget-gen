@@ -119,6 +119,7 @@ export interface IDataUnionAttributeJSON extends ITypedAttributeJSON {
  * Union attribute definition.
  */
 export interface IUnionAttributeJSON extends IBaseAttributeJSON {
+  type: undefined;
   oneOf: NNAttributeDef[];
 }
 
@@ -142,7 +143,11 @@ export type NNAttributeDef = string | number | boolean | IAttributeJSON;
 /**
  * An attribute definition.
  */
-export type AttributeDef = NNAttributeDef | null | undefined;
+export type AttributeDef =
+  | NNAttributeDef
+  | IUnionAttributeJSON
+  | null
+  | undefined;
 
 export type Properties = { [key: string]: AttributeDef };
 
@@ -150,13 +155,13 @@ export type Properties = { [key: string]: AttributeDef };
  * Check whether the attribute defintion is for a union type.
  */
 export function isUnionAttribute(
-  attribute: AttributeDef
-): attribute is IUnionAttributeJSON {
+  data: AttributeDef
+): data is IUnionAttributeJSON {
   return (
-    !!attribute &&
-    typeof attribute === 'object' &&
-    'oneOf' in attribute &&
-    attribute.oneOf !== undefined
+    !!data &&
+    typeof data === 'object' &&
+    'oneOf' in data &&
+    data.oneOf !== undefined
   );
 }
 
@@ -235,23 +240,23 @@ export function translateToInternal(
     return {
       type: 'string',
       default: attribute,
-    };
+    } as Attributes.IString;
   } else if (typeof attribute === 'number') {
     if (Number.isInteger(attribute)) {
       return {
         type: 'int',
         default: attribute,
-      };
+      } as Attributes.IInteger;
     }
     return {
       type: 'float',
       default: attribute,
-    };
+    } as Attributes.IFloat;
   } else if (typeof attribute === 'boolean') {
     return {
       type: 'boolean',
       default: attribute,
-    };
+    } as Attributes.IBoolean;
   } else if (attribute === null) {
     throw new Error('Property is simply defined as "null", which is invalid');
   } else if (attribute === undefined) {
@@ -260,7 +265,7 @@ export function translateToInternal(
     return {
       type: 'union',
       oneOf: attribute.oneOf.map((a) => translateToInternal(a)),
-    };
+    } as Attributes.IUnion;
   } else if (isArrayAttribute(attribute)) {
     let items: undefined | Attributes.DefinedAttribute[];
     if (attribute.items === undefined) {
@@ -273,7 +278,7 @@ export function translateToInternal(
     return {
       ...attribute,
       items,
-    };
+    } as Attributes.IArray;
   } else {
     return attribute;
   }
