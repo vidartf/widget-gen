@@ -22,11 +22,15 @@ program
   )
   .arguments('<file> [languages...]')
   .action(function (file, languages, cmd) {
-    run(file, languages || ['python'], {
-      output: cmd.outputdir,
-      parserName: cmd.parser,
-      templateFile: cmd.template,
-      fileExt: cmd.extension,
-    });
+    try {
+      run(file, languages && languages.length > 0 ? languages : ['python'], {
+        output: cmd.outputdir,
+        parserName: cmd.parser,
+        templateFile: cmd.template,
+        fileExt: cmd.extension,
+      });
+    } catch (error) {
+      console.error(error.message);
+    }
   })
   .parse(process.argv);
