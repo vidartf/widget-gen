@@ -1,17 +1,16 @@
-from ipywidgets import Widget, DOMWidget, widget_serialization
-
+from ipywidgets import DOMWidget, Widget, widget_serialization
 from traitlets import (
-    Unicode,
+    Bool,
+    CFloat,
+    Dict,
+    Enum,
     Instance,
-    Union,
+    Int,
     List,
     Tuple,
-    Dict,
-    Int,
-    CFloat,
-    Bool,
     Undefined,
-    Enum,
+    Unicode,
+    Union,
 )
 
 
