@@ -35,8 +35,8 @@
     "prettier": "prettier --write \"(src|test|scripts)/**/*.[jt]s\"",
     "prettier:check": "prettier --check \"(src|test|scripts)/**/*.[jt]s\"",
     "start": "node main.js",
-    "test": "mocha",
-    "test:cov": "nyc mocha",
+    "test": "mocha \"./test/test*.js\"",
+    "test:cov": "nyc mocha \"./test/test*.js\"",
     "update": "update-dependency --minimal --regex .*"
   },
   "nyc": {
