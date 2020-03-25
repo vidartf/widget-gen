@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "widgets": {
+
+    "BaseTestWidget": {
+      "model_module_name": "test-widget",
+      "view_module_name": "test-widget",
+      "model_module_version": "1.0.0",
+      "model_view_version": {
+        "type": "string",
+        "default": null,
+        "allowNull": true
+      }
+    },
+
+    "EnumNullDefault": {
+      "inherits": ["BaseTestWidget"],
+      "properties": {
+        "_model_name": "EnumNullDefault",
+        "value": {
+          "type": "string",
+          "default": null,
+          "allowNull": true,
+          "enum": ["foo", "bar"]
+        }
+      }
+    },
+
+    "EnumExplicitDefault": {
+      "inherits": ["BaseTestWidget"],
+      "properties": {
+        "_model_name": "EnumExplicitDefault",
+        "value": {
+          "type": "string",
+          "default": "bar",
+          "allowNull": false,
+          "enum": ["foo", "bar"]
+        }
+      }
+    },
+
+    "EnumImplicitNullDefault": {
+      "inherits": ["BaseTestWidget"],
+      "properties": {
+        "_model_name": "EnumImplicitNullDefault",
+        "value": {
+          "type": "string",
+          "allowNull": true,
+          "enum": ["foo", "bar"]
+        }
+      }
+    }
+  }
+}
