@@ -8,18 +8,14 @@ const path = require('path');
 
 const fs = require('fs-extra');
 
-const os = require('os');
-
 const expect = require('chai').expect;
 
-function mkdtemp(prefix) {
-  return fs.mkdtemp(path.join(os.tmpdir(), prefix));
-}
+const { mkdtemp, instantiatePythonWidgets } = require('./util');
 
-describe('test1', () => {
+describe('test_enum', () => {
   describe('python', () => {
     it('should generate all the files', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test_enum.json');
       let outdir = null;
       return mkdtemp('widget-gen')
         .then((d) => {
@@ -33,15 +29,13 @@ describe('test1', () => {
           return new Promise((resolve, reject) => {
             try {
               expect(dirFiles).to.eql([
-                'DataArray.py',
-                'DataContainer.py',
-                'DataSet.py',
-                'ImageData.py',
-                'Piece.py',
-                'UnstructuredGrid.py',
-                'VtkWidget.py',
+                'BaseTestWidget.py',
+                'EnumExplicitDefault.py',
+                'EnumImplicitNullDefault.py',
+                'EnumNullDefault.py',
                 '__init__.py',
               ]);
+              instantiatePythonWidgets(outdir);
             } finally {
               rimraf(outdir, (error) => {
                 if (error) {
@@ -58,7 +52,7 @@ describe('test1', () => {
 
   describe('javascript', () => {
     it('should generate all the files', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test_enum.json');
       let outdir = null;
       return mkdtemp('widget-gen')
         .then((d) => {
@@ -72,13 +66,10 @@ describe('test1', () => {
           return new Promise((resolve, reject) => {
             try {
               expect(dirFiles).to.eql([
-                'DataArray.js',
-                'DataContainer.js',
-                'DataSet.js',
-                'ImageData.js',
-                'Piece.js',
-                'UnstructuredGrid.js',
-                'VtkWidget.js',
+                'BaseTestWidget.js',
+                'EnumExplicitDefault.js',
+                'EnumImplicitNullDefault.js',
+                'EnumNullDefault.js',
                 'index.js',
               ]);
             } finally {
@@ -95,7 +86,7 @@ describe('test1', () => {
     });
 
     it('should generate a single file with all the definitions', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test_enum.json');
       let outdir = null;
       let outfile = null;
       return mkdtemp('widget-gen')
@@ -119,13 +110,10 @@ describe('test1', () => {
                 names.push(match[1]);
               }
               expect(names.sort()).to.eql([
-                'DataArray',
-                'DataContainer',
-                'DataSet',
-                'ImageData',
-                'Piece',
-                'UnstructuredGrid',
-                'VtkWidget',
+                'BaseTestWidget',
+                'EnumExplicitDefault',
+                'EnumImplicitNullDefault',
+                'EnumNullDefault',
               ]);
             } finally {
               rimraf(outdir, (error) => {
@@ -143,7 +131,7 @@ describe('test1', () => {
 
   describe('ts', () => {
     it('should generate all the files', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test_enum.json');
       let outdir = null;
       return mkdtemp('widget-gen')
         .then((d) => {
@@ -157,13 +145,10 @@ describe('test1', () => {
           return new Promise((resolve, reject) => {
             try {
               expect(dirFiles).to.eql([
-                'DataArray.ts',
-                'DataContainer.ts',
-                'DataSet.ts',
-                'ImageData.ts',
-                'Piece.ts',
-                'UnstructuredGrid.ts',
-                'VtkWidget.ts',
+                'BaseTestWidget.ts',
+                'EnumExplicitDefault.ts',
+                'EnumImplicitNullDefault.ts',
+                'EnumNullDefault.ts',
                 'index.ts',
               ]);
             } finally {
@@ -180,7 +165,7 @@ describe('test1', () => {
     });
 
     it('should generate a single file with all the definitions', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test_enum.json');
       let outdir = null;
       let outfile = null;
       return mkdtemp('widget-gen')
@@ -204,13 +189,10 @@ describe('test1', () => {
                 names.push(match[1]);
               }
               expect(names.sort()).to.eql([
-                'DataArray',
-                'DataContainer',
-                'DataSet',
-                'ImageData',
-                'Piece',
-                'UnstructuredGrid',
-                'VtkWidget',
+                'BaseTestWidget',
+                'EnumExplicitDefault',
+                'EnumImplicitNullDefault',
+                'EnumNullDefault',
               ]);
             } finally {
               rimraf(outdir, (error) => {
@@ -228,7 +210,7 @@ describe('test1', () => {
 
   describe('java', () => {
     it('should generate all the files', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test_enum.json');
       let outdir = null;
       return mkdtemp('widget-gen')
         .then((d) => {
@@ -242,13 +224,10 @@ describe('test1', () => {
           return new Promise((resolve, reject) => {
             try {
               expect(dirFiles).to.eql([
-                'DataArray.java',
-                'DataContainer.java',
-                'DataSet.java',
-                'ImageData.java',
-                'Piece.java',
-                'UnstructuredGrid.java',
-                'VtkWidget.java',
+                'BaseTestWidget.java',
+                'EnumExplicitDefault.java',
+                'EnumImplicitNullDefault.java',
+                'EnumNullDefault.java',
               ]);
             } finally {
               rimraf(outdir, (error) => {
@@ -264,7 +243,7 @@ describe('test1', () => {
     });
 
     it('should fail when trying to write to a single file', () => {
-      let fname = path.resolve(__dirname, 'definitions', 'test1.json');
+      let fname = path.resolve(__dirname, 'definitions', 'test_enum.json');
       let outdir = null;
       let outfile = null;
       const log = [];

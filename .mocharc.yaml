@@ -1,0 +1,3 @@
+timeout: 10000
+require: source-map-support/register
+recursive: true

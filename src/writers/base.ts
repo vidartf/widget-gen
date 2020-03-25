@@ -1,20 +1,13 @@
+import { Parser } from '../parsers';
 
-import {
-  Parser
-} from '../parsers';
-
-import {
-  IWidget
-} from '../core';
+import { IWidget } from '../core';
 
 import * as fs from 'fs-extra';
-
 
 /**
  * Interface definition for constructor
  */
-export
-interface IWriterConstructor {
+export interface IWriterConstructor {
   /**
    * Create a code writer.
    *
@@ -23,15 +16,13 @@ interface IWriterConstructor {
   new (output: string, options?: Writer.IOptions): Writer;
 }
 
-
 /**
  * Base class for all code writers.
  *
  * Defines a common constructor signature, and slots/hooks that
  * will be called at the appropriate times during processing.
  */
-export
-abstract class Writer {
+export abstract class Writer {
   /**
    * Create a code writer.
    *
@@ -39,7 +30,8 @@ abstract class Writer {
    */
   constructor(output: string, options?: Writer.IOptions) {
     this.output = output;
-    this.outputMultiple = fs.existsSync(output) && fs.statSync(output).isDirectory();
+    this.outputMultiple =
+      fs.existsSync(output) && fs.statSync(output).isDirectory();
   }
 
   /**
@@ -62,8 +54,7 @@ abstract class Writer {
    *
    * @memberof Writer
    */
-  finalize(): void {
-  };
+  finalize(): void {}
 
   /**
    * The output path to be used by the writer
@@ -84,11 +75,8 @@ abstract class Writer {
   protected firstWidget: boolean = true;
 }
 
-
-export
-namespace Writer {
-  export
-  interface IOptions {
+export namespace Writer {
+  export interface IOptions {
     [key: string]: string;
   }
 }

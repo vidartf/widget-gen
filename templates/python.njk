@@ -2,11 +2,13 @@
 {% endblock %}
 {% block imports %}
 {% block globalimports %}
+import json
+
 from traitlets import (
     Unicode, Enum, Instance, Union, Float, Int, List, Tuple, Dict,
     Undefined, Bool, Any
 )
-from ipywidgets import Widget, DOMWidget
+from ipywidgets import Widget, DOMWidget, register, widget_serialization
 from ipydatawidgets import (
     NDArray, DataUnion, shape_constraints, array_serialization,
     data_union_serialization
@@ -26,6 +28,7 @@ from .{{ ref }} import {{ ref }}
 {% block widget %}
 
 
+@register
 class {{ widget.name }}({{ widget.inherits | join(", ") }}):
 
 {% block widgetbody %}

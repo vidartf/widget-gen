@@ -1,8 +1,4 @@
-
-import {
-  Attributes
-} from '../../core';
-
+import { Attributes } from '../../core';
 
 function formatValue(value: any): string {
   if (value === undefined) {
@@ -16,13 +12,16 @@ function formatValue(value: any): string {
  *
  * @param data The attribute whose default value to use
  */
-export
-function getDefaultValue(data: Attributes.Attribute): string {
-  if (data === null || data === undefined ||
-      typeof data === 'number' || typeof data === 'boolean' ||
-      typeof data === 'string') {
+export function getDefaultValue(data: Attributes.Attribute): string {
+  if (
+    data === null ||
+    data === undefined ||
+    typeof data === 'number' ||
+    typeof data === 'boolean' ||
+    typeof data === 'string'
+  ) {
     return formatValue(data);
-  } else if (Attributes.isUnion(data)) {
+  } else if (data.type === 'union') {
     return getDefaultValue(data.oneOf[0]);
   }
   // JSON object

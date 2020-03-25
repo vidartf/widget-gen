@@ -1,29 +1,17 @@
-
 import * as fs from 'fs-extra';
 
-import {
-  Parser
-} from './base';
+import { Parser } from './base';
 
-import {
-  IDefinition, translatePropertiesToInternal
-} from './formatTypes'
+import { IDefinition, translatePropertiesToInternal } from './formatTypes';
 
-import {
-  IWidget
-} from '../core';
+import { IWidget } from '../core';
 
-import {
-  MSet
-} from '../setMethods';
-
+import { MSet } from '../setMethods';
 
 /**
  * Parser for our custom JSON schema format.
  */
-export
-class JsonParser extends Parser {
-
+export class JsonParser extends Parser {
   start(): Promise<void> {
     return fs.readFile(this.input).then((f) => {
       this.processDefinition(JSON.parse(f.toString()) as IDefinition);
@@ -62,5 +50,3 @@ class JsonParser extends Parser {
 
   protected _names: MSet<string>;
 }
-
-
