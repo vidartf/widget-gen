@@ -5,6 +5,7 @@ from traitlets import (
     CFloat,
     Dict,
     Enum,
+    Float,
     Instance,
     Int,
     List,
@@ -32,6 +33,10 @@ class A(Widget):
     any = Any(42).tag(sync=True)
 
     not_synced = Unicode()
+
+    union_defA = Union((Float(), Unicode()), default_value=None, allow_none=True).tag(sync=True)
+    union_defB = Union((Float(5.5), Unicode('4.3'))).tag(sync=True)
+
 
 
 class B(A):

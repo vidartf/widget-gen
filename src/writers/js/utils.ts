@@ -22,7 +22,9 @@ export function getDefaultValue(data: Attributes.Attribute): string {
   ) {
     return formatValue(data);
   } else if (data.type === 'union') {
-    return getDefaultValue(data.oneOf[0]);
+    if (data.default === undefined) {
+      return getDefaultValue(data.oneOf[0]);
+    }
   }
   // JSON object
   return formatValue(data.default);
