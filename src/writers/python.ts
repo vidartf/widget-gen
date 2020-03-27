@@ -95,7 +95,7 @@ export class PythonWriter extends TemplateWriter {
         const defs = data.oneOf.map((subdata) => this.makeTrait(subdata, true));
         traitDef = `Union([\n${INDENT}${INDENT}${defs.join(
           `,\n${INDENT}${INDENT}`
-        )}\n${INDENT}]${defValue ? `default_value=${defValue}`: ''}${allowNoneArg})`;
+        )}\n${INDENT}]${defValue ? `, default_value=${defValue}`: ''}${allowNoneArg})`;
       } else if (data?.enum) {
         // TODO: Figure out a way to combine enum validation with normal traits
         // (probably make our own trait types via mixins)
