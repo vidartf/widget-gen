@@ -90,11 +90,12 @@ export class PythonWriter extends TemplateWriter {
       if (data.allowNull !== undefined && data.allowNull !== false) {
         allowNoneArg = `, allow_none=${this.convertValue(data.allowNull)}`;
       }
+      let defValue = this.convertValue(data.default);
       if (data.type === 'union') {
         const defs = data.oneOf.map((subdata) => this.makeTrait(subdata, true));
         traitDef = `Union([\n${INDENT}${INDENT}${defs.join(
           `,\n${INDENT}${INDENT}`
-        )}\n${INDENT}]${allowNoneArg})`;
+        )}\n${INDENT}]${defValue ? `default_value=${defValue}`: ''}${allowNoneArg})`;
       } else if (data?.enum) {
         // TODO: Figure out a way to combine enum validation with normal traits
         // (probably make our own trait types via mixins)
@@ -104,7 +105,6 @@ export class PythonWriter extends TemplateWriter {
           `]`,
         ].join(`\n${INDENT}${INDENT}`);
         let entries = [values];
-        let defValue = this.convertValue(data.default);
         if (defValue !== '') {
           entries.push(`default_value=${defValue}`);
         }
@@ -116,7 +116,6 @@ export class PythonWriter extends TemplateWriter {
           `\n${INDENT}${INDENT}${entries.join(`,\n${INDENT}${INDENT}`)}\n` +
           `${INDENT})`;
       } else {
-        let defValue = this.convertValue(data.default);
         switch (data.type) {
           case 'any':
             traitDef = `Any(${defValue}${allowNoneArg})`;

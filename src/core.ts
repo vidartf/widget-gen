@@ -118,6 +118,7 @@ export namespace Attributes {
   export interface IUnion extends IBase {
     type: 'union';
     oneOf: DefinedAttribute[];
+    default: any;
   }
 
   /**
