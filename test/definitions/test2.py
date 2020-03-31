@@ -37,6 +37,11 @@ class A(Widget):
     union_defA = Union((Float(), Unicode()), default_value=None, allow_none=True).tag(sync=True)
     union_defB = Union((Float(5.5), Unicode('4.3'))).tag(sync=True)
 
+    union_enum = Union((
+        Float(),
+        Enum(("foo", "bar"), default_value=None, allow_none=True)
+    ), default_value=None, allow_none=True).tag(sync=True)
+
 
 
 class B(A):

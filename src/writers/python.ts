@@ -105,7 +105,7 @@ export class PythonWriter extends TemplateWriter {
           `]`,
         ].join(`\n${INDENT}${INDENT}`);
         let entries = [values];
-        if (defValue !== '') {
+        if (defValue !== '' && (data.default !== null || allowNoneArg)) {
           entries.push(`default_value=${defValue}`);
         }
         if (allowNoneArg) {
