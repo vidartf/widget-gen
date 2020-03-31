@@ -140,7 +140,7 @@ def convertTrait(trait):
         if isinstance(trait, DataUnion):
             # TODO: Extract shape and dtype constraints, and convert default value to list
             pass
-        elif not isinstance(trait, traitlets.Union):
+        else:
             definition["default"] = default
 
     enums = get_enums(trait)
