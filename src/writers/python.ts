@@ -84,7 +84,7 @@ export class PythonWriter extends TemplateWriter {
     } else {
       // JSON object
       if (data.help) {
-        tag = `.tag(sync=True, help='${data.help}')`;
+        tag = `.tag(sync=True, help="""${data.help}""")`;
       }
       let allowNoneArg = '';
       if (data.allowNull !== undefined && data.allowNull !== false) {
