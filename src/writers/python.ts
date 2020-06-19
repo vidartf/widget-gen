@@ -76,102 +76,111 @@ export class PythonWriter extends TemplateWriter {
   }
 
   protected makeTrait(data: Attributes.Attribute, innerTrait = false): string {
-    let traitDef: string;
-    let tag = '.tag(sync=True)';
+    let traitName: string;
+    let args: string[] = [];
+    let tagArgs = ['sync=True'];
+    let joinHorizontal = true;
+    let postFixes: string[] = [];
+    const outerIndent = innerTrait ? '' : INDENT;
 
     if (data === undefined) {
-      traitDef = 'Any(Undefined)';
+      traitName = 'Any'
+      args.push('Undefined');
     } else {
-      // JSON object
-      if (data.help) {
-        tag = `.tag(sync=True, help="""${data.help}""")`;
-      }
-      let allowNoneArg = '';
-      if (data.allowNull !== undefined && data.allowNull !== false) {
-        allowNoneArg = `, allow_none=${this.convertValue(data.allowNull)}`;
-      }
-      let defValue = this.convertValue(data.default);
+      const defValue = this.convertValue(data.default);
+      const hasAllowNullArg = data.allowNull !== undefined && data.allowNull !== false;
+
       if (data.type === 'union') {
-        const defs = data.oneOf.map((subdata) => this.makeTrait(subdata, true));
-        traitDef = `Union([\n${INDENT}${INDENT}${defs.join(
-          `,\n${INDENT}${INDENT}`
-        )}\n${INDENT}]${defValue ? `, default_value=${defValue}`: ''}${allowNoneArg})`;
+        traitName = 'Union';
+        joinHorizontal = false;
+        const defs = data.oneOf.map((subdata) => this.makeTrait(subdata, true).split(/\n/g).join(`\n${outerIndent}${INDENT}${INDENT}`));
+        args.push(
+          `[\n${outerIndent}${INDENT}${INDENT}${defs.join(
+            `,\n${outerIndent}${INDENT}${INDENT}`
+          )}\n${outerIndent}${INDENT}]`
+        );
+        if (defValue) {
+          args.push(`default_value=${defValue}`);
+        }
       } else if (data?.enum) {
         // TODO: Figure out a way to combine enum validation with normal traits
         // (probably make our own trait types via mixins)
-        let values = [
+        traitName = 'Enum';
+        joinHorizontal = false;
+        args.push([
           `[`,
           ...data.enum.map((v) => `${INDENT}${this.convertValue(v)},`),
           `]`,
-        ].join(`\n${INDENT}${INDENT}`);
-        let entries = [values];
-        if (defValue !== '' && (data.default !== null || allowNoneArg)) {
-          entries.push(`default_value=${defValue}`);
+        ].join(`\n${outerIndent}${INDENT}`));
+        if (defValue !== '' && (data.default !== null || hasAllowNullArg)) {
+          args.push(`default_value=${defValue}`);
         }
-        if (allowNoneArg) {
-          entries.push(allowNoneArg.slice(2));
-        }
-        traitDef =
-          'Enum(' +
-          `\n${INDENT}${INDENT}${entries.join(`,\n${INDENT}${INDENT}`)}\n` +
-          `${INDENT})`;
       } else {
         switch (data.type) {
           case 'any':
-            traitDef = `Any(${defValue}${allowNoneArg})`;
+            traitName = 'Any';
+            if (defValue) {
+              args.push(defValue);
+            }
             break;
 
           case 'int':
-            traitDef = `Int(${defValue}${allowNoneArg})`;
+            traitName = 'Int';
+            if (defValue) {
+              args.push(defValue);
+            }
             break;
 
           case 'float':
-            traitDef = `Float(${defValue}${allowNoneArg})`;
+            traitName = 'Float';
+            if (defValue) {
+              args.push(defValue);
+            }
             break;
 
           case 'boolean':
-            traitDef = `Bool(${defValue}${allowNoneArg})`;
+            traitName = 'Bool';
+            if (defValue) {
+              args.push(defValue);
+            }
             break;
 
           case 'string':
-            traitDef = `Unicode(${defValue}${allowNoneArg})`;
+            traitName = 'Unicode';
+            if (defValue) {
+              args.push(defValue);
+            }
             break;
 
           case 'object':
-            let defArg;
-            if (data.default === undefined) {
-              defArg = '';
-              // Remove ', ' from start of allowNoneArg
-              allowNoneArg = allowNoneArg.slice(2);
-            } else {
-              defArg = `default_value=${defValue}`;
+            traitName = 'Dict';
+            if (data.default !== undefined) {
+              args.push(`default_value=${defValue}`);
             }
-            traitDef = `Dict(${defArg}${allowNoneArg})`;
             break;
 
           case 'array':
             let items = data.items;
             if (items === undefined) {
-              traitDef = `Tuple(${defValue}${allowNoneArg})`;
+              traitName = 'Tuple';
+              if (defValue) {
+                args.push(defValue);
+              }
             } else if (Array.isArray(items)) {
-              let lines = [];
+              traitName = 'Tuple';
+              joinHorizontal = false;
               for (let item of items) {
-                lines.push(this.makeTrait(item, true));
+                args.push(this.makeTrait(item, true).split(/\n/g).join(`\n${outerIndent}${INDENT}`));
               }
               if (defValue) {
-                lines.push(`default_value=${defValue}`);
+                args.push(`default_value=${defValue}`);
               }
-              if (allowNoneArg) {
-                lines.push(allowNoneArg.slice(2));
-              }
-              traitDef =
-                `Tuple(\n` +
-                `${INDENT}${INDENT}${lines.join(`,\n${INDENT}${INDENT}`)}\n` +
-                `${INDENT})`;
             } else {
-              traitDef = `List(${this.makeTrait(items, true)}${
-                defValue ? `, default_value=${defValue}` : ''
-              }${allowNoneArg})`;
+              traitName = 'List';
+              args.push(this.makeTrait(items, true).split(/\n/g).join(`\n${outerIndent}${INDENT}`));
+              if (defValue) {
+                args.push(`default_value=${defValue}`);
+              }
             }
             break;
 
@@ -179,66 +188,79 @@ export class PythonWriter extends TemplateWriter {
             let type = data.widgetType;
             if (Array.isArray(type)) {
               const instances = type.map(function (typeName) {
-                return `${INDENT}${INDENT}Instance(${typeName})`;
+                return `Instance(${typeName})`;
               });
-              traitDef =
-                'Union([\n' +
-                instances.join(',\n') +
-                `\n${INDENT}]${allowNoneArg})`;
+              traitName = 'Union';
+              joinHorizontal = false;
+              args.push(
+                '[\n' +
+                instances.join(`,\n${outerIndent}${INDENT}`) +
+                `\n${outerIndent}]`
+              );
             } else {
-              traitDef = `Instance(${type}${allowNoneArg})`;
+              traitName = 'Instance';
+              args.push(type);
             }
             break;
 
           case 'ndarray':
+            traitName = 'NDArray';
             var { shape, dtype } = data;
-            let dtypeStr = '',
-              shapeStr = '';
             if (dtype) {
-              dtypeStr = `dtype=${dtype}`;
+              args.push(`dtype=${dtype}`);
             }
             if (shape) {
               let pyShape = shape.map((entry) => {
                 return entry === null ? 'None' : entry;
               });
-              shapeStr = `.valid(shape_constraints(${pyShape.join(', ')}))`;
+              postFixes.push(`.valid(shape_constraints(${pyShape.join(', ')}))`)
             }
-            traitDef = `NDArray(${dtypeStr}${allowNoneArg})${shapeStr}`;
-            tag = tag.slice(0, tag.length - 1) + ', **array_serialization)';
+            tagArgs.push('**array_serialization');
             break;
 
           case 'dataunion':
+            traitName = 'DataUnion';
             var { shape, dtype } = data;
-            let parts = [];
             if (defValue !== '') {
-              parts.push(`${defValue}`);
+              args.push(`${defValue}`);
             }
             if (dtype) {
-              parts.push(`dtype=${dtype}`);
+              args.push(`dtype=${dtype}`);
             }
             if (shape) {
               let pyShape = shape.map((entry) => {
                 return entry === null ? 'None' : entry;
               });
-              parts.push(
+              args.push(
                 `shape_constraint=shape_constraints(${pyShape.join(', ')}))`
               );
             }
-            traitDef = `DataUnion(${parts.join(', ')}${allowNoneArg})`;
-            tag =
-              tag.slice(0, tag.length - 1) + ', **data_union_serialization)';
+            tagArgs.push('**data_union_serialization');
             break;
 
           default:
             throw new Error(`Unknown type: ${(data as any).type}`);
         }
       }
+      if (data.allowNull !== undefined && data.allowNull !== false) {
+        args.push(`allow_none=${this.convertValue(data.allowNull)}`);
+      }
+      if (data.help) {
+        args.push('help="""${data.help}"""');
+      }
+    }
+
+    let stem: string;
+    if (joinHorizontal) {
+      stem = `${traitName}(${args.join(', ')})`;
+    } else {
+      stem = `${traitName}(\n${outerIndent}${INDENT}${args.join(`,\n${outerIndent}${INDENT}`)}\n${outerIndent})`
     }
     if (innerTrait) {
-      return traitDef;
+      return stem;
     } else if (hasWidgetRef(data)) {
-      tag = tag.slice(0, tag.length - 1) + ', **widget_serialization)';
+      tagArgs.push('**widget_serialization');
     }
-    return traitDef + tag;
+    return `${stem}.tag(${tagArgs.join(', ')})`;
   }
 }
