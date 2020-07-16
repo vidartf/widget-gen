@@ -246,7 +246,7 @@ export class PythonWriter extends TemplateWriter {
         args.push(`allow_none=${this.convertValue(data.allowNull)}`);
       }
       if (data.help) {
-        args.push('help="""${data.help}"""');
+        args.push(`help="""${data.help}"""`);
       }
     }
 
